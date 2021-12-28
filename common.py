@@ -226,7 +226,7 @@ class LpMetricsDb(Database):
         
         return statements
 
-    def getMetrics(self, ip, port, eth, message=None, signature=None):
+    def getMetrics(self, ip, port, eth, message=None, signature=None, return_r=False):
         metrics_parsed = []
         try:
             log.debug('getMetrics function has been called')
@@ -265,13 +265,19 @@ class LpMetricsDb(Database):
                 tags_dict['ip'] = ip
                 tags_dict['eth'] = eth
                 
-                ID = hashlib.md5(str.encode(metric+tags)).hexdigest()
+                tags_string = json.dumps(tags_dict)
                 
-                metrics_parsed.append({'id':ID,'metric':metric,'tags':json.dumps(tags_dict),'value':value})
+                ID = hashlib.md5(str.encode(metric+tags_string)).hexdigest()
+                
+                metrics_parsed.append({'id':ID,'metric':metric,'tags':tags_string,'value':value})
         except Exception as e:
             log.error('getMetrics function failed: %s', e)
-            
-        return metrics_parsed
+            return None
+        
+        if return_r:    
+            return metrics_parsed, r
+        else:
+            return metrics_parsed
 
     def split_with_quotes(self, infile):
     
@@ -321,21 +327,25 @@ class LpMetricsDb(Database):
         for orch in self.configs['participating_orchestrators']:
             try:
                 metrics = self.getMetrics(orch['ip'],orch['port'],orch['eth'],message=self.configs['message'],signature=self.configs['signature'])
-                metric_list.append(metrics)
+                if metrics != None:
+                    metric_list.append(metrics)
             except:
                 log.error('failed retrieving metrics from %s',orch['ip'])
         
         
         try:
-            metrics = sum(metric_list, [])
+            if metric_list != []:
+                metrics = sum(metric_list, [])
+                    
+                _sql = """INSERT INTO metrics_staging (id,metric,tags,value)
+                            VALUES(?,?,?,?)"""
                 
-            _sql = """INSERT INTO metrics_staging (id,metric,tags,value)
-                        VALUES(?,?,?,?)"""
-            
-            _data = [tuple(dic.values()) for dic in metrics]
-            self.execmany_sql(_sql,_data)
+                _data = [tuple(dic.values()) for dic in metrics]
+                self.execmany_sql(_sql,_data)
+                return metrics
         except:
             log.error('failed writing data to remote metrics staging')
+            return metric_list
         
     def update_local_metrics_in_db(self):
         log.debug('syncing local metrics staging to local metrics table')
