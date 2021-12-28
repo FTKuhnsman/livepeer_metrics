@@ -233,7 +233,7 @@ class LpMetricsDb(Database):
             value = str(l[-1]).strip()
             
             tags_dict = self.split_with_quotes(tags)
-            print(tags_dict)
+            #print(tags_dict)
             tags_dict['ip'] = ip
             tags_dict['eth'] = eth
             
@@ -313,6 +313,32 @@ class LpMetricsDb(Database):
         
         self.execute_sql(_sql1)
         self.execute_sql(_sql2)
+        self.execute_sql(_sql3)
+        
+    def update_remote_metrics_in_db(self):
+        _sql1l = """INSERT INTO metrics
+                    SELECT * FROM local_metrics_staging
+                    WHERE id NOT IN (SELECT id from local_metrics);"""
+        _sql1r = """INSERT INTO metrics
+                    SELECT * FROM metrics_staging
+                    WHERE id NOT IN (SELECT id from metrics);"""
+        _sql2l = """UPDATE metrics
+                    SET value = (SELECT value FROM local_metrics_staging WHERE id = metrics.id)
+                    WHERE value <> (SELECT value FROM local_metrics_staging WHERE id = metrics.id);"""
+        _sql2r = """UPDATE metrics
+                    SET value = (SELECT value FROM metrics_staging WHERE id = metrics.id)
+                    WHERE value <> (SELECT value FROM metrics_staging WHERE id = metrics.id);"""
+        _sql3 = """DELETE FROM metrics WHERE id NOT IN (SELECT id from local_metrics_staging) AND id NOT IN (SELECT id from metrics_staging);"""
+        
+        print('1l')
+        self.execute_sql(_sql1l)
+        print('1r')
+        self.execute_sql(_sql1r)
+        print('2l')
+        self.execute_sql(_sql2l)
+        print('2r')
+        self.execute_sql(_sql2r)
+        print('3')
         self.execute_sql(_sql3)
         
     def serve_local_metrics(self):

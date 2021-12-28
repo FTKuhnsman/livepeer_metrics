@@ -66,6 +66,8 @@ def background_tasks():
         #print('background reset')
         db.update_local_metrics_staging_in_db()
         db.update_local_metrics_in_db()
+        db.update_remote_metrics_staging_in_db()
+        db.update_remote_metrics_in_db()
         time.sleep(10)
         # Do your stuff with commonDataStruct Here
 
