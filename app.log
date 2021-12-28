@@ -3578,3 +3578,1065 @@
 16:09:12:DEBUG:syncing all staging to metrics table
 16:09:12:DEBUG:syncing all staging to metrics table
 16:09:12:DEBUG:syncing all staging to metrics table
+16:09:20:DEBUG:background task loop iteration
+16:09:20:DEBUG:background task loop iteration
+16:09:20:DEBUG:background task loop iteration
+16:09:20:DEBUG:background task loop iteration
+16:09:20:DEBUG:update local metrics staging table
+16:09:20:DEBUG:update local metrics staging table
+16:09:20:DEBUG:update local metrics staging table
+16:09:20:DEBUG:update local metrics staging table
+16:09:20:DEBUG:update local metrics staging table
+16:09:20:DEBUG:update local metrics staging table
+16:09:20:DEBUG:update local metrics staging table
+16:09:20:DEBUG:getMetrics function has been called
+16:09:20:DEBUG:getMetrics function has been called
+16:09:20:DEBUG:getMetrics function has been called
+16:09:20:DEBUG:getMetrics function has been called
+16:09:20:DEBUG:getMetrics function has been called
+16:09:20:DEBUG:getMetrics function has been called
+16:09:20:DEBUG:getMetrics function has been called
+16:09:20:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:20:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:20:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:20:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:20:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:20:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:20:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:20:DEBUG:getMetrics: requesting metrics without authentication
+16:09:20:DEBUG:getMetrics: requesting metrics without authentication
+16:09:20:DEBUG:getMetrics: requesting metrics without authentication
+16:09:20:DEBUG:getMetrics: requesting metrics without authentication
+16:09:20:DEBUG:getMetrics: requesting metrics without authentication
+16:09:20:DEBUG:getMetrics: requesting metrics without authentication
+16:09:20:DEBUG:getMetrics: requesting metrics without authentication
+16:09:20:DEBUG:getMetrics: response status code 200
+16:09:20:DEBUG:getMetrics: response status code 200
+16:09:20:DEBUG:getMetrics: response status code 200
+16:09:20:DEBUG:getMetrics: response status code 200
+16:09:20:DEBUG:getMetrics: response status code 200
+16:09:20:DEBUG:getMetrics: response status code 200
+16:09:20:DEBUG:getMetrics: response status code 200
+16:09:20:DEBUG:syncing local metrics staging to local metrics table
+16:09:20:DEBUG:syncing local metrics staging to local metrics table
+16:09:20:DEBUG:syncing local metrics staging to local metrics table
+16:09:20:DEBUG:syncing local metrics staging to local metrics table
+16:09:20:DEBUG:syncing local metrics staging to local metrics table
+16:09:20:DEBUG:syncing local metrics staging to local metrics table
+16:09:20:DEBUG:syncing local metrics staging to local metrics table
+16:09:21:DEBUG:update remote metrics staging table
+16:09:21:DEBUG:update remote metrics staging table
+16:09:21:DEBUG:update remote metrics staging table
+16:09:21:DEBUG:update remote metrics staging table
+16:09:21:DEBUG:update remote metrics staging table
+16:09:21:DEBUG:update remote metrics staging table
+16:09:21:DEBUG:update remote metrics staging table
+16:09:21:DEBUG:getMetrics function has been called
+16:09:21:DEBUG:getMetrics function has been called
+16:09:21:DEBUG:getMetrics function has been called
+16:09:21:DEBUG:getMetrics function has been called
+16:09:21:DEBUG:getMetrics function has been called
+16:09:21:DEBUG:getMetrics function has been called
+16:09:21:DEBUG:getMetrics function has been called
+16:09:21:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:21:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:21:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:21:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:21:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:21:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:21:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:21:DEBUG:getMetrics: requesting metrics with authentication
+16:09:21:DEBUG:getMetrics: requesting metrics with authentication
+16:09:21:DEBUG:getMetrics: requesting metrics with authentication
+16:09:21:DEBUG:getMetrics: requesting metrics with authentication
+16:09:21:DEBUG:getMetrics: requesting metrics with authentication
+16:09:21:DEBUG:getMetrics: requesting metrics with authentication
+16:09:21:DEBUG:getMetrics: requesting metrics with authentication
+16:09:21:DEBUG:getMetrics: response status code 200
+16:09:21:DEBUG:getMetrics: response status code 200
+16:09:21:DEBUG:getMetrics: response status code 200
+16:09:21:DEBUG:getMetrics: response status code 200
+16:09:21:DEBUG:getMetrics: response status code 200
+16:09:21:DEBUG:getMetrics: response status code 200
+16:09:21:DEBUG:getMetrics: response status code 200
+16:09:21:DEBUG:syncing all staging to metrics table
+16:09:21:DEBUG:syncing all staging to metrics table
+16:09:21:DEBUG:syncing all staging to metrics table
+16:09:21:DEBUG:syncing all staging to metrics table
+16:09:21:DEBUG:syncing all staging to metrics table
+16:09:21:DEBUG:syncing all staging to metrics table
+16:09:21:DEBUG:syncing all staging to metrics table
+16:09:21:DEBUG:Received get_metrics api request
+16:09:22:DEBUG:background task loop iteration
+16:09:22:DEBUG:background task loop iteration
+16:09:22:DEBUG:background task loop iteration
+16:09:22:DEBUG:background task loop iteration
+16:09:22:DEBUG:update local metrics staging table
+16:09:22:DEBUG:update local metrics staging table
+16:09:22:DEBUG:update local metrics staging table
+16:09:22:DEBUG:update local metrics staging table
+16:09:22:DEBUG:update local metrics staging table
+16:09:22:DEBUG:update local metrics staging table
+16:09:22:DEBUG:update local metrics staging table
+16:09:22:DEBUG:getMetrics function has been called
+16:09:22:DEBUG:getMetrics function has been called
+16:09:22:DEBUG:getMetrics function has been called
+16:09:22:DEBUG:getMetrics function has been called
+16:09:22:DEBUG:getMetrics function has been called
+16:09:22:DEBUG:getMetrics function has been called
+16:09:22:DEBUG:getMetrics function has been called
+16:09:22:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:22:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:22:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:22:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:22:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:22:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:22:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:22:DEBUG:getMetrics: requesting metrics without authentication
+16:09:22:DEBUG:getMetrics: requesting metrics without authentication
+16:09:22:DEBUG:getMetrics: requesting metrics without authentication
+16:09:22:DEBUG:getMetrics: requesting metrics without authentication
+16:09:22:DEBUG:getMetrics: requesting metrics without authentication
+16:09:22:DEBUG:getMetrics: requesting metrics without authentication
+16:09:22:DEBUG:getMetrics: requesting metrics without authentication
+16:09:22:DEBUG:getMetrics: response status code 200
+16:09:22:DEBUG:getMetrics: response status code 200
+16:09:22:DEBUG:getMetrics: response status code 200
+16:09:22:DEBUG:getMetrics: response status code 200
+16:09:22:DEBUG:getMetrics: response status code 200
+16:09:22:DEBUG:getMetrics: response status code 200
+16:09:22:DEBUG:getMetrics: response status code 200
+16:09:22:DEBUG:syncing local metrics staging to local metrics table
+16:09:22:DEBUG:syncing local metrics staging to local metrics table
+16:09:22:DEBUG:syncing local metrics staging to local metrics table
+16:09:22:DEBUG:syncing local metrics staging to local metrics table
+16:09:22:DEBUG:syncing local metrics staging to local metrics table
+16:09:22:DEBUG:syncing local metrics staging to local metrics table
+16:09:22:DEBUG:syncing local metrics staging to local metrics table
+16:09:22:DEBUG:update remote metrics staging table
+16:09:22:DEBUG:update remote metrics staging table
+16:09:22:DEBUG:update remote metrics staging table
+16:09:22:DEBUG:update remote metrics staging table
+16:09:22:DEBUG:update remote metrics staging table
+16:09:22:DEBUG:update remote metrics staging table
+16:09:22:DEBUG:update remote metrics staging table
+16:09:22:DEBUG:getMetrics function has been called
+16:09:22:DEBUG:getMetrics function has been called
+16:09:22:DEBUG:getMetrics function has been called
+16:09:22:DEBUG:getMetrics function has been called
+16:09:22:DEBUG:getMetrics function has been called
+16:09:22:DEBUG:getMetrics function has been called
+16:09:22:DEBUG:getMetrics function has been called
+16:09:22:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:22:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:22:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:22:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:22:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:22:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:22:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:22:DEBUG:getMetrics: requesting metrics with authentication
+16:09:22:DEBUG:getMetrics: requesting metrics with authentication
+16:09:22:DEBUG:getMetrics: requesting metrics with authentication
+16:09:22:DEBUG:getMetrics: requesting metrics with authentication
+16:09:22:DEBUG:getMetrics: requesting metrics with authentication
+16:09:22:DEBUG:getMetrics: requesting metrics with authentication
+16:09:22:DEBUG:getMetrics: requesting metrics with authentication
+16:09:22:DEBUG:getMetrics: response status code 200
+16:09:22:DEBUG:getMetrics: response status code 200
+16:09:22:DEBUG:getMetrics: response status code 200
+16:09:22:DEBUG:getMetrics: response status code 200
+16:09:22:DEBUG:getMetrics: response status code 200
+16:09:22:DEBUG:getMetrics: response status code 200
+16:09:22:DEBUG:getMetrics: response status code 200
+16:09:22:DEBUG:syncing all staging to metrics table
+16:09:22:DEBUG:syncing all staging to metrics table
+16:09:22:DEBUG:syncing all staging to metrics table
+16:09:22:DEBUG:syncing all staging to metrics table
+16:09:22:DEBUG:syncing all staging to metrics table
+16:09:22:DEBUG:syncing all staging to metrics table
+16:09:22:DEBUG:syncing all staging to metrics table
+16:09:31:DEBUG:background task loop iteration
+16:09:31:DEBUG:background task loop iteration
+16:09:31:DEBUG:background task loop iteration
+16:09:31:DEBUG:background task loop iteration
+16:09:31:DEBUG:update local metrics staging table
+16:09:31:DEBUG:update local metrics staging table
+16:09:31:DEBUG:update local metrics staging table
+16:09:31:DEBUG:update local metrics staging table
+16:09:31:DEBUG:update local metrics staging table
+16:09:31:DEBUG:update local metrics staging table
+16:09:31:DEBUG:update local metrics staging table
+16:09:31:DEBUG:getMetrics function has been called
+16:09:31:DEBUG:getMetrics function has been called
+16:09:31:DEBUG:getMetrics function has been called
+16:09:31:DEBUG:getMetrics function has been called
+16:09:31:DEBUG:getMetrics function has been called
+16:09:31:DEBUG:getMetrics function has been called
+16:09:31:DEBUG:getMetrics function has been called
+16:09:31:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:31:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:31:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:31:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:31:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:31:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:31:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:31:DEBUG:getMetrics: requesting metrics without authentication
+16:09:31:DEBUG:getMetrics: requesting metrics without authentication
+16:09:31:DEBUG:getMetrics: requesting metrics without authentication
+16:09:31:DEBUG:getMetrics: requesting metrics without authentication
+16:09:31:DEBUG:getMetrics: requesting metrics without authentication
+16:09:31:DEBUG:getMetrics: requesting metrics without authentication
+16:09:31:DEBUG:getMetrics: requesting metrics without authentication
+16:09:31:DEBUG:getMetrics: response status code 200
+16:09:31:DEBUG:getMetrics: response status code 200
+16:09:31:DEBUG:getMetrics: response status code 200
+16:09:31:DEBUG:getMetrics: response status code 200
+16:09:31:DEBUG:getMetrics: response status code 200
+16:09:31:DEBUG:getMetrics: response status code 200
+16:09:31:DEBUG:getMetrics: response status code 200
+16:09:31:DEBUG:syncing local metrics staging to local metrics table
+16:09:31:DEBUG:syncing local metrics staging to local metrics table
+16:09:31:DEBUG:syncing local metrics staging to local metrics table
+16:09:31:DEBUG:syncing local metrics staging to local metrics table
+16:09:31:DEBUG:syncing local metrics staging to local metrics table
+16:09:31:DEBUG:syncing local metrics staging to local metrics table
+16:09:31:DEBUG:syncing local metrics staging to local metrics table
+16:09:31:DEBUG:update remote metrics staging table
+16:09:31:DEBUG:update remote metrics staging table
+16:09:31:DEBUG:update remote metrics staging table
+16:09:31:DEBUG:update remote metrics staging table
+16:09:31:DEBUG:update remote metrics staging table
+16:09:31:DEBUG:update remote metrics staging table
+16:09:31:DEBUG:update remote metrics staging table
+16:09:31:DEBUG:getMetrics function has been called
+16:09:31:DEBUG:getMetrics function has been called
+16:09:31:DEBUG:getMetrics function has been called
+16:09:31:DEBUG:getMetrics function has been called
+16:09:31:DEBUG:getMetrics function has been called
+16:09:31:DEBUG:getMetrics function has been called
+16:09:31:DEBUG:getMetrics function has been called
+16:09:31:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:31:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:31:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:31:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:31:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:31:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:31:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:31:DEBUG:getMetrics: requesting metrics with authentication
+16:09:31:DEBUG:getMetrics: requesting metrics with authentication
+16:09:31:DEBUG:getMetrics: requesting metrics with authentication
+16:09:31:DEBUG:getMetrics: requesting metrics with authentication
+16:09:31:DEBUG:getMetrics: requesting metrics with authentication
+16:09:31:DEBUG:getMetrics: requesting metrics with authentication
+16:09:31:DEBUG:getMetrics: requesting metrics with authentication
+16:09:31:DEBUG:getMetrics: response status code 200
+16:09:31:DEBUG:getMetrics: response status code 200
+16:09:31:DEBUG:getMetrics: response status code 200
+16:09:31:DEBUG:getMetrics: response status code 200
+16:09:31:DEBUG:getMetrics: response status code 200
+16:09:31:DEBUG:getMetrics: response status code 200
+16:09:31:DEBUG:getMetrics: response status code 200
+16:09:32:DEBUG:Received get_metrics api request
+16:09:32:DEBUG:syncing all staging to metrics table
+16:09:32:DEBUG:syncing all staging to metrics table
+16:09:32:DEBUG:syncing all staging to metrics table
+16:09:32:DEBUG:syncing all staging to metrics table
+16:09:32:DEBUG:syncing all staging to metrics table
+16:09:32:DEBUG:syncing all staging to metrics table
+16:09:32:DEBUG:syncing all staging to metrics table
+16:09:32:DEBUG:background task loop iteration
+16:09:32:DEBUG:background task loop iteration
+16:09:32:DEBUG:background task loop iteration
+16:09:32:DEBUG:background task loop iteration
+16:09:32:DEBUG:update local metrics staging table
+16:09:32:DEBUG:update local metrics staging table
+16:09:32:DEBUG:update local metrics staging table
+16:09:32:DEBUG:update local metrics staging table
+16:09:32:DEBUG:update local metrics staging table
+16:09:32:DEBUG:update local metrics staging table
+16:09:32:DEBUG:update local metrics staging table
+16:09:32:DEBUG:getMetrics function has been called
+16:09:32:DEBUG:getMetrics function has been called
+16:09:32:DEBUG:getMetrics function has been called
+16:09:32:DEBUG:getMetrics function has been called
+16:09:32:DEBUG:getMetrics function has been called
+16:09:32:DEBUG:getMetrics function has been called
+16:09:32:DEBUG:getMetrics function has been called
+16:09:32:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:32:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:32:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:32:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:32:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:32:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:32:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:32:DEBUG:getMetrics: requesting metrics without authentication
+16:09:32:DEBUG:getMetrics: requesting metrics without authentication
+16:09:32:DEBUG:getMetrics: requesting metrics without authentication
+16:09:32:DEBUG:getMetrics: requesting metrics without authentication
+16:09:32:DEBUG:getMetrics: requesting metrics without authentication
+16:09:32:DEBUG:getMetrics: requesting metrics without authentication
+16:09:32:DEBUG:getMetrics: requesting metrics without authentication
+16:09:32:DEBUG:getMetrics: response status code 200
+16:09:32:DEBUG:getMetrics: response status code 200
+16:09:32:DEBUG:getMetrics: response status code 200
+16:09:32:DEBUG:getMetrics: response status code 200
+16:09:32:DEBUG:getMetrics: response status code 200
+16:09:32:DEBUG:getMetrics: response status code 200
+16:09:32:DEBUG:getMetrics: response status code 200
+16:09:32:DEBUG:syncing local metrics staging to local metrics table
+16:09:32:DEBUG:syncing local metrics staging to local metrics table
+16:09:32:DEBUG:syncing local metrics staging to local metrics table
+16:09:32:DEBUG:syncing local metrics staging to local metrics table
+16:09:32:DEBUG:syncing local metrics staging to local metrics table
+16:09:32:DEBUG:syncing local metrics staging to local metrics table
+16:09:32:DEBUG:syncing local metrics staging to local metrics table
+16:09:32:DEBUG:update remote metrics staging table
+16:09:32:DEBUG:update remote metrics staging table
+16:09:32:DEBUG:update remote metrics staging table
+16:09:32:DEBUG:update remote metrics staging table
+16:09:32:DEBUG:update remote metrics staging table
+16:09:32:DEBUG:update remote metrics staging table
+16:09:32:DEBUG:update remote metrics staging table
+16:09:33:DEBUG:getMetrics function has been called
+16:09:33:DEBUG:getMetrics function has been called
+16:09:33:DEBUG:getMetrics function has been called
+16:09:33:DEBUG:getMetrics function has been called
+16:09:33:DEBUG:getMetrics function has been called
+16:09:33:DEBUG:getMetrics function has been called
+16:09:33:DEBUG:getMetrics function has been called
+16:09:33:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:33:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:33:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:33:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:33:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:33:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:33:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:33:DEBUG:getMetrics: requesting metrics with authentication
+16:09:33:DEBUG:getMetrics: requesting metrics with authentication
+16:09:33:DEBUG:getMetrics: requesting metrics with authentication
+16:09:33:DEBUG:getMetrics: requesting metrics with authentication
+16:09:33:DEBUG:getMetrics: requesting metrics with authentication
+16:09:33:DEBUG:getMetrics: requesting metrics with authentication
+16:09:33:DEBUG:getMetrics: requesting metrics with authentication
+16:09:33:DEBUG:getMetrics: response status code 200
+16:09:33:DEBUG:getMetrics: response status code 200
+16:09:33:DEBUG:getMetrics: response status code 200
+16:09:33:DEBUG:getMetrics: response status code 200
+16:09:33:DEBUG:getMetrics: response status code 200
+16:09:33:DEBUG:getMetrics: response status code 200
+16:09:33:DEBUG:getMetrics: response status code 200
+16:09:33:DEBUG:syncing all staging to metrics table
+16:09:33:DEBUG:syncing all staging to metrics table
+16:09:33:DEBUG:syncing all staging to metrics table
+16:09:33:DEBUG:syncing all staging to metrics table
+16:09:33:DEBUG:syncing all staging to metrics table
+16:09:33:DEBUG:syncing all staging to metrics table
+16:09:33:DEBUG:syncing all staging to metrics table
+16:09:42:DEBUG:background task loop iteration
+16:09:42:DEBUG:background task loop iteration
+16:09:42:DEBUG:background task loop iteration
+16:09:42:DEBUG:background task loop iteration
+16:09:42:DEBUG:update local metrics staging table
+16:09:42:DEBUG:update local metrics staging table
+16:09:42:DEBUG:update local metrics staging table
+16:09:42:DEBUG:update local metrics staging table
+16:09:42:DEBUG:update local metrics staging table
+16:09:42:DEBUG:update local metrics staging table
+16:09:42:DEBUG:update local metrics staging table
+16:09:42:DEBUG:getMetrics function has been called
+16:09:42:DEBUG:getMetrics function has been called
+16:09:42:DEBUG:getMetrics function has been called
+16:09:42:DEBUG:getMetrics function has been called
+16:09:42:DEBUG:getMetrics function has been called
+16:09:42:DEBUG:getMetrics function has been called
+16:09:42:DEBUG:getMetrics function has been called
+16:09:42:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:42:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:42:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:42:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:42:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:42:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:42:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:42:DEBUG:getMetrics: requesting metrics without authentication
+16:09:42:DEBUG:getMetrics: requesting metrics without authentication
+16:09:42:DEBUG:getMetrics: requesting metrics without authentication
+16:09:42:DEBUG:getMetrics: requesting metrics without authentication
+16:09:42:DEBUG:getMetrics: requesting metrics without authentication
+16:09:42:DEBUG:getMetrics: requesting metrics without authentication
+16:09:42:DEBUG:getMetrics: requesting metrics without authentication
+16:09:42:DEBUG:getMetrics: response status code 200
+16:09:42:DEBUG:getMetrics: response status code 200
+16:09:42:DEBUG:getMetrics: response status code 200
+16:09:42:DEBUG:getMetrics: response status code 200
+16:09:42:DEBUG:getMetrics: response status code 200
+16:09:42:DEBUG:getMetrics: response status code 200
+16:09:42:DEBUG:getMetrics: response status code 200
+16:09:42:DEBUG:syncing local metrics staging to local metrics table
+16:09:42:DEBUG:syncing local metrics staging to local metrics table
+16:09:42:DEBUG:syncing local metrics staging to local metrics table
+16:09:42:DEBUG:syncing local metrics staging to local metrics table
+16:09:42:DEBUG:syncing local metrics staging to local metrics table
+16:09:42:DEBUG:syncing local metrics staging to local metrics table
+16:09:42:DEBUG:syncing local metrics staging to local metrics table
+16:09:42:DEBUG:update remote metrics staging table
+16:09:42:DEBUG:update remote metrics staging table
+16:09:42:DEBUG:update remote metrics staging table
+16:09:42:DEBUG:update remote metrics staging table
+16:09:42:DEBUG:update remote metrics staging table
+16:09:42:DEBUG:update remote metrics staging table
+16:09:42:DEBUG:update remote metrics staging table
+16:09:42:DEBUG:getMetrics function has been called
+16:09:42:DEBUG:getMetrics function has been called
+16:09:42:DEBUG:getMetrics function has been called
+16:09:42:DEBUG:getMetrics function has been called
+16:09:42:DEBUG:getMetrics function has been called
+16:09:42:DEBUG:getMetrics function has been called
+16:09:42:DEBUG:getMetrics function has been called
+16:09:42:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:42:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:42:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:42:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:42:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:42:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:42:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:42:DEBUG:getMetrics: requesting metrics with authentication
+16:09:42:DEBUG:getMetrics: requesting metrics with authentication
+16:09:42:DEBUG:getMetrics: requesting metrics with authentication
+16:09:42:DEBUG:getMetrics: requesting metrics with authentication
+16:09:42:DEBUG:getMetrics: requesting metrics with authentication
+16:09:42:DEBUG:getMetrics: requesting metrics with authentication
+16:09:42:DEBUG:getMetrics: requesting metrics with authentication
+16:09:42:DEBUG:Received get_metrics api request
+16:09:42:DEBUG:getMetrics: response status code 200
+16:09:42:DEBUG:getMetrics: response status code 200
+16:09:42:DEBUG:getMetrics: response status code 200
+16:09:42:DEBUG:getMetrics: response status code 200
+16:09:42:DEBUG:getMetrics: response status code 200
+16:09:42:DEBUG:getMetrics: response status code 200
+16:09:42:DEBUG:getMetrics: response status code 200
+16:09:42:DEBUG:syncing all staging to metrics table
+16:09:42:DEBUG:syncing all staging to metrics table
+16:09:42:DEBUG:syncing all staging to metrics table
+16:09:42:DEBUG:syncing all staging to metrics table
+16:09:42:DEBUG:syncing all staging to metrics table
+16:09:42:DEBUG:syncing all staging to metrics table
+16:09:42:DEBUG:syncing all staging to metrics table
+16:09:43:DEBUG:background task loop iteration
+16:09:43:DEBUG:background task loop iteration
+16:09:43:DEBUG:background task loop iteration
+16:09:43:DEBUG:background task loop iteration
+16:09:43:DEBUG:update local metrics staging table
+16:09:43:DEBUG:update local metrics staging table
+16:09:43:DEBUG:update local metrics staging table
+16:09:43:DEBUG:update local metrics staging table
+16:09:43:DEBUG:update local metrics staging table
+16:09:43:DEBUG:update local metrics staging table
+16:09:43:DEBUG:update local metrics staging table
+16:09:43:DEBUG:getMetrics function has been called
+16:09:43:DEBUG:getMetrics function has been called
+16:09:43:DEBUG:getMetrics function has been called
+16:09:43:DEBUG:getMetrics function has been called
+16:09:43:DEBUG:getMetrics function has been called
+16:09:43:DEBUG:getMetrics function has been called
+16:09:43:DEBUG:getMetrics function has been called
+16:09:43:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:43:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:43:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:43:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:43:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:43:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:43:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:43:DEBUG:getMetrics: requesting metrics without authentication
+16:09:43:DEBUG:getMetrics: requesting metrics without authentication
+16:09:43:DEBUG:getMetrics: requesting metrics without authentication
+16:09:43:DEBUG:getMetrics: requesting metrics without authentication
+16:09:43:DEBUG:getMetrics: requesting metrics without authentication
+16:09:43:DEBUG:getMetrics: requesting metrics without authentication
+16:09:43:DEBUG:getMetrics: requesting metrics without authentication
+16:09:43:DEBUG:getMetrics: response status code 200
+16:09:43:DEBUG:getMetrics: response status code 200
+16:09:43:DEBUG:getMetrics: response status code 200
+16:09:43:DEBUG:getMetrics: response status code 200
+16:09:43:DEBUG:getMetrics: response status code 200
+16:09:43:DEBUG:getMetrics: response status code 200
+16:09:43:DEBUG:getMetrics: response status code 200
+16:09:43:DEBUG:syncing local metrics staging to local metrics table
+16:09:43:DEBUG:syncing local metrics staging to local metrics table
+16:09:43:DEBUG:syncing local metrics staging to local metrics table
+16:09:43:DEBUG:syncing local metrics staging to local metrics table
+16:09:43:DEBUG:syncing local metrics staging to local metrics table
+16:09:43:DEBUG:syncing local metrics staging to local metrics table
+16:09:43:DEBUG:syncing local metrics staging to local metrics table
+16:09:43:DEBUG:update remote metrics staging table
+16:09:43:DEBUG:update remote metrics staging table
+16:09:43:DEBUG:update remote metrics staging table
+16:09:43:DEBUG:update remote metrics staging table
+16:09:43:DEBUG:update remote metrics staging table
+16:09:43:DEBUG:update remote metrics staging table
+16:09:43:DEBUG:update remote metrics staging table
+16:09:43:DEBUG:getMetrics function has been called
+16:09:43:DEBUG:getMetrics function has been called
+16:09:43:DEBUG:getMetrics function has been called
+16:09:43:DEBUG:getMetrics function has been called
+16:09:43:DEBUG:getMetrics function has been called
+16:09:43:DEBUG:getMetrics function has been called
+16:09:43:DEBUG:getMetrics function has been called
+16:09:43:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:43:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:43:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:43:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:43:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:43:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:43:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:43:DEBUG:getMetrics: requesting metrics with authentication
+16:09:43:DEBUG:getMetrics: requesting metrics with authentication
+16:09:43:DEBUG:getMetrics: requesting metrics with authentication
+16:09:43:DEBUG:getMetrics: requesting metrics with authentication
+16:09:43:DEBUG:getMetrics: requesting metrics with authentication
+16:09:43:DEBUG:getMetrics: requesting metrics with authentication
+16:09:43:DEBUG:getMetrics: requesting metrics with authentication
+16:09:43:DEBUG:getMetrics: response status code 200
+16:09:43:DEBUG:getMetrics: response status code 200
+16:09:43:DEBUG:getMetrics: response status code 200
+16:09:43:DEBUG:getMetrics: response status code 200
+16:09:43:DEBUG:getMetrics: response status code 200
+16:09:43:DEBUG:getMetrics: response status code 200
+16:09:43:DEBUG:getMetrics: response status code 200
+16:09:44:DEBUG:syncing all staging to metrics table
+16:09:44:DEBUG:syncing all staging to metrics table
+16:09:44:DEBUG:syncing all staging to metrics table
+16:09:44:DEBUG:syncing all staging to metrics table
+16:09:44:DEBUG:syncing all staging to metrics table
+16:09:44:DEBUG:syncing all staging to metrics table
+16:09:44:DEBUG:syncing all staging to metrics table
+16:09:52:DEBUG:Received get_metrics api request
+16:09:52:DEBUG:background task loop iteration
+16:09:52:DEBUG:background task loop iteration
+16:09:52:DEBUG:background task loop iteration
+16:09:52:DEBUG:background task loop iteration
+16:09:52:DEBUG:update local metrics staging table
+16:09:52:DEBUG:update local metrics staging table
+16:09:52:DEBUG:update local metrics staging table
+16:09:52:DEBUG:update local metrics staging table
+16:09:52:DEBUG:update local metrics staging table
+16:09:52:DEBUG:update local metrics staging table
+16:09:52:DEBUG:update local metrics staging table
+16:09:52:DEBUG:getMetrics function has been called
+16:09:52:DEBUG:getMetrics function has been called
+16:09:52:DEBUG:getMetrics function has been called
+16:09:52:DEBUG:getMetrics function has been called
+16:09:52:DEBUG:getMetrics function has been called
+16:09:52:DEBUG:getMetrics function has been called
+16:09:52:DEBUG:getMetrics function has been called
+16:09:52:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:52:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:52:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:52:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:52:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:52:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:52:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:52:DEBUG:getMetrics: requesting metrics without authentication
+16:09:52:DEBUG:getMetrics: requesting metrics without authentication
+16:09:52:DEBUG:getMetrics: requesting metrics without authentication
+16:09:52:DEBUG:getMetrics: requesting metrics without authentication
+16:09:52:DEBUG:getMetrics: requesting metrics without authentication
+16:09:52:DEBUG:getMetrics: requesting metrics without authentication
+16:09:52:DEBUG:getMetrics: requesting metrics without authentication
+16:09:52:DEBUG:getMetrics: response status code 200
+16:09:52:DEBUG:getMetrics: response status code 200
+16:09:52:DEBUG:getMetrics: response status code 200
+16:09:52:DEBUG:getMetrics: response status code 200
+16:09:52:DEBUG:getMetrics: response status code 200
+16:09:52:DEBUG:getMetrics: response status code 200
+16:09:52:DEBUG:getMetrics: response status code 200
+16:09:52:DEBUG:syncing local metrics staging to local metrics table
+16:09:52:DEBUG:syncing local metrics staging to local metrics table
+16:09:52:DEBUG:syncing local metrics staging to local metrics table
+16:09:52:DEBUG:syncing local metrics staging to local metrics table
+16:09:52:DEBUG:syncing local metrics staging to local metrics table
+16:09:52:DEBUG:syncing local metrics staging to local metrics table
+16:09:52:DEBUG:syncing local metrics staging to local metrics table
+16:09:52:DEBUG:update remote metrics staging table
+16:09:52:DEBUG:update remote metrics staging table
+16:09:52:DEBUG:update remote metrics staging table
+16:09:52:DEBUG:update remote metrics staging table
+16:09:52:DEBUG:update remote metrics staging table
+16:09:52:DEBUG:update remote metrics staging table
+16:09:52:DEBUG:update remote metrics staging table
+16:09:52:DEBUG:getMetrics function has been called
+16:09:52:DEBUG:getMetrics function has been called
+16:09:52:DEBUG:getMetrics function has been called
+16:09:52:DEBUG:getMetrics function has been called
+16:09:52:DEBUG:getMetrics function has been called
+16:09:52:DEBUG:getMetrics function has been called
+16:09:52:DEBUG:getMetrics function has been called
+16:09:52:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:52:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:52:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:52:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:52:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:52:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:52:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:52:DEBUG:getMetrics: requesting metrics with authentication
+16:09:52:DEBUG:getMetrics: requesting metrics with authentication
+16:09:52:DEBUG:getMetrics: requesting metrics with authentication
+16:09:52:DEBUG:getMetrics: requesting metrics with authentication
+16:09:52:DEBUG:getMetrics: requesting metrics with authentication
+16:09:52:DEBUG:getMetrics: requesting metrics with authentication
+16:09:52:DEBUG:getMetrics: requesting metrics with authentication
+16:09:53:DEBUG:getMetrics: response status code 200
+16:09:53:DEBUG:getMetrics: response status code 200
+16:09:53:DEBUG:getMetrics: response status code 200
+16:09:53:DEBUG:getMetrics: response status code 200
+16:09:53:DEBUG:getMetrics: response status code 200
+16:09:53:DEBUG:getMetrics: response status code 200
+16:09:53:DEBUG:getMetrics: response status code 200
+16:09:53:DEBUG:syncing all staging to metrics table
+16:09:53:DEBUG:syncing all staging to metrics table
+16:09:53:DEBUG:syncing all staging to metrics table
+16:09:53:DEBUG:syncing all staging to metrics table
+16:09:53:DEBUG:syncing all staging to metrics table
+16:09:53:DEBUG:syncing all staging to metrics table
+16:09:53:DEBUG:syncing all staging to metrics table
+16:09:54:DEBUG:background task loop iteration
+16:09:54:DEBUG:background task loop iteration
+16:09:54:DEBUG:background task loop iteration
+16:09:54:DEBUG:background task loop iteration
+16:09:54:DEBUG:update local metrics staging table
+16:09:54:DEBUG:update local metrics staging table
+16:09:54:DEBUG:update local metrics staging table
+16:09:54:DEBUG:update local metrics staging table
+16:09:54:DEBUG:update local metrics staging table
+16:09:54:DEBUG:update local metrics staging table
+16:09:54:DEBUG:update local metrics staging table
+16:09:54:DEBUG:getMetrics function has been called
+16:09:54:DEBUG:getMetrics function has been called
+16:09:54:DEBUG:getMetrics function has been called
+16:09:54:DEBUG:getMetrics function has been called
+16:09:54:DEBUG:getMetrics function has been called
+16:09:54:DEBUG:getMetrics function has been called
+16:09:54:DEBUG:getMetrics function has been called
+16:09:54:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:54:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:54:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:54:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:54:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:54:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:54:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:09:54:DEBUG:getMetrics: requesting metrics without authentication
+16:09:54:DEBUG:getMetrics: requesting metrics without authentication
+16:09:54:DEBUG:getMetrics: requesting metrics without authentication
+16:09:54:DEBUG:getMetrics: requesting metrics without authentication
+16:09:54:DEBUG:getMetrics: requesting metrics without authentication
+16:09:54:DEBUG:getMetrics: requesting metrics without authentication
+16:09:54:DEBUG:getMetrics: requesting metrics without authentication
+16:09:54:DEBUG:getMetrics: response status code 200
+16:09:54:DEBUG:getMetrics: response status code 200
+16:09:54:DEBUG:getMetrics: response status code 200
+16:09:54:DEBUG:getMetrics: response status code 200
+16:09:54:DEBUG:getMetrics: response status code 200
+16:09:54:DEBUG:getMetrics: response status code 200
+16:09:54:DEBUG:getMetrics: response status code 200
+16:09:54:DEBUG:syncing local metrics staging to local metrics table
+16:09:54:DEBUG:syncing local metrics staging to local metrics table
+16:09:54:DEBUG:syncing local metrics staging to local metrics table
+16:09:54:DEBUG:syncing local metrics staging to local metrics table
+16:09:54:DEBUG:syncing local metrics staging to local metrics table
+16:09:54:DEBUG:syncing local metrics staging to local metrics table
+16:09:54:DEBUG:syncing local metrics staging to local metrics table
+16:09:54:DEBUG:update remote metrics staging table
+16:09:54:DEBUG:update remote metrics staging table
+16:09:54:DEBUG:update remote metrics staging table
+16:09:54:DEBUG:update remote metrics staging table
+16:09:54:DEBUG:update remote metrics staging table
+16:09:54:DEBUG:update remote metrics staging table
+16:09:54:DEBUG:update remote metrics staging table
+16:09:54:DEBUG:getMetrics function has been called
+16:09:54:DEBUG:getMetrics function has been called
+16:09:54:DEBUG:getMetrics function has been called
+16:09:54:DEBUG:getMetrics function has been called
+16:09:54:DEBUG:getMetrics function has been called
+16:09:54:DEBUG:getMetrics function has been called
+16:09:54:DEBUG:getMetrics function has been called
+16:09:54:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:54:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:54:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:54:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:54:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:54:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:54:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:09:54:DEBUG:getMetrics: requesting metrics with authentication
+16:09:54:DEBUG:getMetrics: requesting metrics with authentication
+16:09:54:DEBUG:getMetrics: requesting metrics with authentication
+16:09:54:DEBUG:getMetrics: requesting metrics with authentication
+16:09:54:DEBUG:getMetrics: requesting metrics with authentication
+16:09:54:DEBUG:getMetrics: requesting metrics with authentication
+16:09:54:DEBUG:getMetrics: requesting metrics with authentication
+16:09:54:DEBUG:getMetrics: response status code 200
+16:09:54:DEBUG:getMetrics: response status code 200
+16:09:54:DEBUG:getMetrics: response status code 200
+16:09:54:DEBUG:getMetrics: response status code 200
+16:09:54:DEBUG:getMetrics: response status code 200
+16:09:54:DEBUG:getMetrics: response status code 200
+16:09:54:DEBUG:getMetrics: response status code 200
+16:09:54:DEBUG:syncing all staging to metrics table
+16:09:54:DEBUG:syncing all staging to metrics table
+16:09:54:DEBUG:syncing all staging to metrics table
+16:09:54:DEBUG:syncing all staging to metrics table
+16:09:54:DEBUG:syncing all staging to metrics table
+16:09:54:DEBUG:syncing all staging to metrics table
+16:09:54:DEBUG:syncing all staging to metrics table
+16:10:02:DEBUG:Received get_metrics api request
+16:10:03:DEBUG:background task loop iteration
+16:10:03:DEBUG:background task loop iteration
+16:10:03:DEBUG:background task loop iteration
+16:10:03:DEBUG:background task loop iteration
+16:10:03:DEBUG:update local metrics staging table
+16:10:03:DEBUG:update local metrics staging table
+16:10:03:DEBUG:update local metrics staging table
+16:10:03:DEBUG:update local metrics staging table
+16:10:03:DEBUG:update local metrics staging table
+16:10:03:DEBUG:update local metrics staging table
+16:10:03:DEBUG:update local metrics staging table
+16:10:03:DEBUG:getMetrics function has been called
+16:10:03:DEBUG:getMetrics function has been called
+16:10:03:DEBUG:getMetrics function has been called
+16:10:03:DEBUG:getMetrics function has been called
+16:10:03:DEBUG:getMetrics function has been called
+16:10:03:DEBUG:getMetrics function has been called
+16:10:03:DEBUG:getMetrics function has been called
+16:10:03:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:03:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:03:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:03:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:03:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:03:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:03:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:03:DEBUG:getMetrics: requesting metrics without authentication
+16:10:03:DEBUG:getMetrics: requesting metrics without authentication
+16:10:03:DEBUG:getMetrics: requesting metrics without authentication
+16:10:03:DEBUG:getMetrics: requesting metrics without authentication
+16:10:03:DEBUG:getMetrics: requesting metrics without authentication
+16:10:03:DEBUG:getMetrics: requesting metrics without authentication
+16:10:03:DEBUG:getMetrics: requesting metrics without authentication
+16:10:03:DEBUG:getMetrics: response status code 200
+16:10:03:DEBUG:getMetrics: response status code 200
+16:10:03:DEBUG:getMetrics: response status code 200
+16:10:03:DEBUG:getMetrics: response status code 200
+16:10:03:DEBUG:getMetrics: response status code 200
+16:10:03:DEBUG:getMetrics: response status code 200
+16:10:03:DEBUG:getMetrics: response status code 200
+16:10:03:DEBUG:syncing local metrics staging to local metrics table
+16:10:03:DEBUG:syncing local metrics staging to local metrics table
+16:10:03:DEBUG:syncing local metrics staging to local metrics table
+16:10:03:DEBUG:syncing local metrics staging to local metrics table
+16:10:03:DEBUG:syncing local metrics staging to local metrics table
+16:10:03:DEBUG:syncing local metrics staging to local metrics table
+16:10:03:DEBUG:syncing local metrics staging to local metrics table
+16:10:03:DEBUG:update remote metrics staging table
+16:10:03:DEBUG:update remote metrics staging table
+16:10:03:DEBUG:update remote metrics staging table
+16:10:03:DEBUG:update remote metrics staging table
+16:10:03:DEBUG:update remote metrics staging table
+16:10:03:DEBUG:update remote metrics staging table
+16:10:03:DEBUG:update remote metrics staging table
+16:10:03:DEBUG:getMetrics function has been called
+16:10:03:DEBUG:getMetrics function has been called
+16:10:03:DEBUG:getMetrics function has been called
+16:10:03:DEBUG:getMetrics function has been called
+16:10:03:DEBUG:getMetrics function has been called
+16:10:03:DEBUG:getMetrics function has been called
+16:10:03:DEBUG:getMetrics function has been called
+16:10:03:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:03:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:03:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:03:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:03:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:03:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:03:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:03:DEBUG:getMetrics: requesting metrics with authentication
+16:10:03:DEBUG:getMetrics: requesting metrics with authentication
+16:10:03:DEBUG:getMetrics: requesting metrics with authentication
+16:10:03:DEBUG:getMetrics: requesting metrics with authentication
+16:10:03:DEBUG:getMetrics: requesting metrics with authentication
+16:10:03:DEBUG:getMetrics: requesting metrics with authentication
+16:10:03:DEBUG:getMetrics: requesting metrics with authentication
+16:10:03:DEBUG:getMetrics: response status code 200
+16:10:03:DEBUG:getMetrics: response status code 200
+16:10:03:DEBUG:getMetrics: response status code 200
+16:10:03:DEBUG:getMetrics: response status code 200
+16:10:03:DEBUG:getMetrics: response status code 200
+16:10:03:DEBUG:getMetrics: response status code 200
+16:10:03:DEBUG:getMetrics: response status code 200
+16:10:03:DEBUG:syncing all staging to metrics table
+16:10:03:DEBUG:syncing all staging to metrics table
+16:10:03:DEBUG:syncing all staging to metrics table
+16:10:03:DEBUG:syncing all staging to metrics table
+16:10:03:DEBUG:syncing all staging to metrics table
+16:10:03:DEBUG:syncing all staging to metrics table
+16:10:03:DEBUG:syncing all staging to metrics table
+16:10:04:DEBUG:background task loop iteration
+16:10:04:DEBUG:background task loop iteration
+16:10:04:DEBUG:background task loop iteration
+16:10:04:DEBUG:background task loop iteration
+16:10:04:DEBUG:update local metrics staging table
+16:10:04:DEBUG:update local metrics staging table
+16:10:04:DEBUG:update local metrics staging table
+16:10:04:DEBUG:update local metrics staging table
+16:10:04:DEBUG:update local metrics staging table
+16:10:04:DEBUG:update local metrics staging table
+16:10:04:DEBUG:update local metrics staging table
+16:10:04:DEBUG:getMetrics function has been called
+16:10:04:DEBUG:getMetrics function has been called
+16:10:04:DEBUG:getMetrics function has been called
+16:10:04:DEBUG:getMetrics function has been called
+16:10:04:DEBUG:getMetrics function has been called
+16:10:04:DEBUG:getMetrics function has been called
+16:10:04:DEBUG:getMetrics function has been called
+16:10:04:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:04:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:04:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:04:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:04:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:04:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:04:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:04:DEBUG:getMetrics: requesting metrics without authentication
+16:10:04:DEBUG:getMetrics: requesting metrics without authentication
+16:10:04:DEBUG:getMetrics: requesting metrics without authentication
+16:10:04:DEBUG:getMetrics: requesting metrics without authentication
+16:10:04:DEBUG:getMetrics: requesting metrics without authentication
+16:10:04:DEBUG:getMetrics: requesting metrics without authentication
+16:10:04:DEBUG:getMetrics: requesting metrics without authentication
+16:10:04:DEBUG:getMetrics: response status code 200
+16:10:04:DEBUG:getMetrics: response status code 200
+16:10:04:DEBUG:getMetrics: response status code 200
+16:10:04:DEBUG:getMetrics: response status code 200
+16:10:04:DEBUG:getMetrics: response status code 200
+16:10:04:DEBUG:getMetrics: response status code 200
+16:10:04:DEBUG:getMetrics: response status code 200
+16:10:04:DEBUG:syncing local metrics staging to local metrics table
+16:10:04:DEBUG:syncing local metrics staging to local metrics table
+16:10:04:DEBUG:syncing local metrics staging to local metrics table
+16:10:04:DEBUG:syncing local metrics staging to local metrics table
+16:10:04:DEBUG:syncing local metrics staging to local metrics table
+16:10:04:DEBUG:syncing local metrics staging to local metrics table
+16:10:04:DEBUG:syncing local metrics staging to local metrics table
+16:10:04:DEBUG:update remote metrics staging table
+16:10:04:DEBUG:update remote metrics staging table
+16:10:04:DEBUG:update remote metrics staging table
+16:10:04:DEBUG:update remote metrics staging table
+16:10:04:DEBUG:update remote metrics staging table
+16:10:04:DEBUG:update remote metrics staging table
+16:10:04:DEBUG:update remote metrics staging table
+16:10:04:DEBUG:getMetrics function has been called
+16:10:04:DEBUG:getMetrics function has been called
+16:10:04:DEBUG:getMetrics function has been called
+16:10:04:DEBUG:getMetrics function has been called
+16:10:04:DEBUG:getMetrics function has been called
+16:10:04:DEBUG:getMetrics function has been called
+16:10:04:DEBUG:getMetrics function has been called
+16:10:04:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:04:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:04:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:04:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:04:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:04:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:04:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:04:DEBUG:getMetrics: requesting metrics with authentication
+16:10:04:DEBUG:getMetrics: requesting metrics with authentication
+16:10:04:DEBUG:getMetrics: requesting metrics with authentication
+16:10:04:DEBUG:getMetrics: requesting metrics with authentication
+16:10:04:DEBUG:getMetrics: requesting metrics with authentication
+16:10:04:DEBUG:getMetrics: requesting metrics with authentication
+16:10:04:DEBUG:getMetrics: requesting metrics with authentication
+16:10:05:DEBUG:getMetrics: response status code 200
+16:10:05:DEBUG:getMetrics: response status code 200
+16:10:05:DEBUG:getMetrics: response status code 200
+16:10:05:DEBUG:getMetrics: response status code 200
+16:10:05:DEBUG:getMetrics: response status code 200
+16:10:05:DEBUG:getMetrics: response status code 200
+16:10:05:DEBUG:getMetrics: response status code 200
+16:10:05:DEBUG:syncing all staging to metrics table
+16:10:05:DEBUG:syncing all staging to metrics table
+16:10:05:DEBUG:syncing all staging to metrics table
+16:10:05:DEBUG:syncing all staging to metrics table
+16:10:05:DEBUG:syncing all staging to metrics table
+16:10:05:DEBUG:syncing all staging to metrics table
+16:10:05:DEBUG:syncing all staging to metrics table
+16:10:13:DEBUG:Received get_metrics api request
+16:10:14:DEBUG:background task loop iteration
+16:10:14:DEBUG:background task loop iteration
+16:10:14:DEBUG:background task loop iteration
+16:10:14:DEBUG:background task loop iteration
+16:10:14:DEBUG:update local metrics staging table
+16:10:14:DEBUG:update local metrics staging table
+16:10:14:DEBUG:update local metrics staging table
+16:10:14:DEBUG:update local metrics staging table
+16:10:14:DEBUG:update local metrics staging table
+16:10:14:DEBUG:update local metrics staging table
+16:10:14:DEBUG:update local metrics staging table
+16:10:14:DEBUG:getMetrics function has been called
+16:10:14:DEBUG:getMetrics function has been called
+16:10:14:DEBUG:getMetrics function has been called
+16:10:14:DEBUG:getMetrics function has been called
+16:10:14:DEBUG:getMetrics function has been called
+16:10:14:DEBUG:getMetrics function has been called
+16:10:14:DEBUG:getMetrics function has been called
+16:10:14:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:14:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:14:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:14:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:14:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:14:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:14:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:14:DEBUG:getMetrics: requesting metrics without authentication
+16:10:14:DEBUG:getMetrics: requesting metrics without authentication
+16:10:14:DEBUG:getMetrics: requesting metrics without authentication
+16:10:14:DEBUG:getMetrics: requesting metrics without authentication
+16:10:14:DEBUG:getMetrics: requesting metrics without authentication
+16:10:14:DEBUG:getMetrics: requesting metrics without authentication
+16:10:14:DEBUG:getMetrics: requesting metrics without authentication
+16:10:14:DEBUG:getMetrics: response status code 200
+16:10:14:DEBUG:getMetrics: response status code 200
+16:10:14:DEBUG:getMetrics: response status code 200
+16:10:14:DEBUG:getMetrics: response status code 200
+16:10:14:DEBUG:getMetrics: response status code 200
+16:10:14:DEBUG:getMetrics: response status code 200
+16:10:14:DEBUG:getMetrics: response status code 200
+16:10:14:DEBUG:syncing local metrics staging to local metrics table
+16:10:14:DEBUG:syncing local metrics staging to local metrics table
+16:10:14:DEBUG:syncing local metrics staging to local metrics table
+16:10:14:DEBUG:syncing local metrics staging to local metrics table
+16:10:14:DEBUG:syncing local metrics staging to local metrics table
+16:10:14:DEBUG:syncing local metrics staging to local metrics table
+16:10:14:DEBUG:syncing local metrics staging to local metrics table
+16:10:14:DEBUG:update remote metrics staging table
+16:10:14:DEBUG:update remote metrics staging table
+16:10:14:DEBUG:update remote metrics staging table
+16:10:14:DEBUG:update remote metrics staging table
+16:10:14:DEBUG:update remote metrics staging table
+16:10:14:DEBUG:update remote metrics staging table
+16:10:14:DEBUG:update remote metrics staging table
+16:10:14:DEBUG:getMetrics function has been called
+16:10:14:DEBUG:getMetrics function has been called
+16:10:14:DEBUG:getMetrics function has been called
+16:10:14:DEBUG:getMetrics function has been called
+16:10:14:DEBUG:getMetrics function has been called
+16:10:14:DEBUG:getMetrics function has been called
+16:10:14:DEBUG:getMetrics function has been called
+16:10:14:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:14:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:14:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:14:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:14:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:14:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:14:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:14:DEBUG:getMetrics: requesting metrics with authentication
+16:10:14:DEBUG:getMetrics: requesting metrics with authentication
+16:10:14:DEBUG:getMetrics: requesting metrics with authentication
+16:10:14:DEBUG:getMetrics: requesting metrics with authentication
+16:10:14:DEBUG:getMetrics: requesting metrics with authentication
+16:10:14:DEBUG:getMetrics: requesting metrics with authentication
+16:10:14:DEBUG:getMetrics: requesting metrics with authentication
+16:10:14:DEBUG:getMetrics: response status code 200
+16:10:14:DEBUG:getMetrics: response status code 200
+16:10:14:DEBUG:getMetrics: response status code 200
+16:10:14:DEBUG:getMetrics: response status code 200
+16:10:14:DEBUG:getMetrics: response status code 200
+16:10:14:DEBUG:getMetrics: response status code 200
+16:10:14:DEBUG:getMetrics: response status code 200
+16:10:14:DEBUG:syncing all staging to metrics table
+16:10:14:DEBUG:syncing all staging to metrics table
+16:10:14:DEBUG:syncing all staging to metrics table
+16:10:14:DEBUG:syncing all staging to metrics table
+16:10:14:DEBUG:syncing all staging to metrics table
+16:10:14:DEBUG:syncing all staging to metrics table
+16:10:14:DEBUG:syncing all staging to metrics table
+16:10:15:DEBUG:background task loop iteration
+16:10:15:DEBUG:background task loop iteration
+16:10:15:DEBUG:background task loop iteration
+16:10:15:DEBUG:background task loop iteration
+16:10:15:DEBUG:update local metrics staging table
+16:10:15:DEBUG:update local metrics staging table
+16:10:15:DEBUG:update local metrics staging table
+16:10:15:DEBUG:update local metrics staging table
+16:10:15:DEBUG:update local metrics staging table
+16:10:15:DEBUG:update local metrics staging table
+16:10:15:DEBUG:update local metrics staging table
+16:10:15:DEBUG:getMetrics function has been called
+16:10:15:DEBUG:getMetrics function has been called
+16:10:15:DEBUG:getMetrics function has been called
+16:10:15:DEBUG:getMetrics function has been called
+16:10:15:DEBUG:getMetrics function has been called
+16:10:15:DEBUG:getMetrics function has been called
+16:10:15:DEBUG:getMetrics function has been called
+16:10:15:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:15:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:15:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:15:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:15:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:15:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:15:DEBUG:getMetrics: url = http://localhost:7935/metrics
+16:10:15:DEBUG:getMetrics: requesting metrics without authentication
+16:10:15:DEBUG:getMetrics: requesting metrics without authentication
+16:10:15:DEBUG:getMetrics: requesting metrics without authentication
+16:10:15:DEBUG:getMetrics: requesting metrics without authentication
+16:10:15:DEBUG:getMetrics: requesting metrics without authentication
+16:10:15:DEBUG:getMetrics: requesting metrics without authentication
+16:10:15:DEBUG:getMetrics: requesting metrics without authentication
+16:10:15:DEBUG:getMetrics: response status code 200
+16:10:15:DEBUG:getMetrics: response status code 200
+16:10:15:DEBUG:getMetrics: response status code 200
+16:10:15:DEBUG:getMetrics: response status code 200
+16:10:15:DEBUG:getMetrics: response status code 200
+16:10:15:DEBUG:getMetrics: response status code 200
+16:10:15:DEBUG:getMetrics: response status code 200
+16:10:15:DEBUG:syncing local metrics staging to local metrics table
+16:10:15:DEBUG:syncing local metrics staging to local metrics table
+16:10:15:DEBUG:syncing local metrics staging to local metrics table
+16:10:15:DEBUG:syncing local metrics staging to local metrics table
+16:10:15:DEBUG:syncing local metrics staging to local metrics table
+16:10:15:DEBUG:syncing local metrics staging to local metrics table
+16:10:15:DEBUG:syncing local metrics staging to local metrics table
+16:10:15:DEBUG:update remote metrics staging table
+16:10:15:DEBUG:update remote metrics staging table
+16:10:15:DEBUG:update remote metrics staging table
+16:10:15:DEBUG:update remote metrics staging table
+16:10:15:DEBUG:update remote metrics staging table
+16:10:15:DEBUG:update remote metrics staging table
+16:10:15:DEBUG:update remote metrics staging table
+16:10:15:DEBUG:getMetrics function has been called
+16:10:15:DEBUG:getMetrics function has been called
+16:10:15:DEBUG:getMetrics function has been called
+16:10:15:DEBUG:getMetrics function has been called
+16:10:15:DEBUG:getMetrics function has been called
+16:10:15:DEBUG:getMetrics function has been called
+16:10:15:DEBUG:getMetrics function has been called
+16:10:15:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:15:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:15:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:15:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:15:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:15:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:15:DEBUG:getMetrics: url = http://chicago.ftkuhnsman.com:5000/metrics
+16:10:15:DEBUG:getMetrics: requesting metrics with authentication
+16:10:15:DEBUG:getMetrics: requesting metrics with authentication
+16:10:15:DEBUG:getMetrics: requesting metrics with authentication
+16:10:15:DEBUG:getMetrics: requesting metrics with authentication
+16:10:15:DEBUG:getMetrics: requesting metrics with authentication
+16:10:15:DEBUG:getMetrics: requesting metrics with authentication
+16:10:15:DEBUG:getMetrics: requesting metrics with authentication
+16:10:15:DEBUG:getMetrics: response status code 200
+16:10:15:DEBUG:getMetrics: response status code 200
+16:10:15:DEBUG:getMetrics: response status code 200
+16:10:15:DEBUG:getMetrics: response status code 200
+16:10:15:DEBUG:getMetrics: response status code 200
+16:10:15:DEBUG:getMetrics: response status code 200
+16:10:15:DEBUG:getMetrics: response status code 200
+16:10:15:DEBUG:syncing all staging to metrics table
+16:10:15:DEBUG:syncing all staging to metrics table
+16:10:15:DEBUG:syncing all staging to metrics table
+16:10:15:DEBUG:syncing all staging to metrics table
+16:10:15:DEBUG:syncing all staging to metrics table
+16:10:15:DEBUG:syncing all staging to metrics table
+16:10:15:DEBUG:syncing all staging to metrics table
