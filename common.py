@@ -10,6 +10,23 @@ saved a working version on 11.6.2021 before changing the way this handles '*' ch
 
 @author: jkuhnsman
 """
+import logging
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+
+file = logging.FileHandler('app.log')
+file.setLevel(logging.DEBUG)
+fileformat = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s",datefmt="%H:%M:%S")
+file.setFormatter(fileformat)
+
+stream = logging.StreamHandler()
+stream.setLevel(logging.DEBUG)
+streamformat = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s")
+stream.setFormatter(streamformat)
+
+log.addHandler(file)
+log.addHandler(stream)
+log.info('Application has started')
 
 import json
 import pandas as pd
@@ -19,6 +36,7 @@ from sqlite3 import Error
 import requests
 import functools
 import hashlib
+
 print = functools.partial(print, flush=True)
 #from datetime import datetime
 #from pypika import Query, Table, Field
@@ -102,15 +120,16 @@ class LpMetricsDb(Database):
         self.configs = _configs
         
         self.initialize_db()
+        log.debug('LPMetricsDB instance init function complete')
         
         
     def initialize_db(self):
         tables = self.get_tables()
         if not 'active_orchs' in tables:
-            print('active_orchs table does not exist... creating table')
+            log.info('active_orchs table does not exist... creating table')
             self.init_active_orchs()
         elif self.execute_sql('SELECT * FROM active_orchs') == []:
-            print('active_orchs table is empty... populating table')
+            log.info('active_orchs table is empty... populating table')
             self.init_active_orchs()
         
         self.init_metrics_tables()
@@ -129,22 +148,24 @@ class LpMetricsDb(Database):
                 reward_cut=o['RewardCut'])
             #insert records
             self.execute_sql(sql_insert)
-        print('active_orchs table created')
+        log.info('active_orchs table created')
     
     def init_metrics_tables(self):
         self.execute_sql('DROP TABLE IF EXISTS metrics')
         self.execute_sql(self.static_statements['create_metrics_table'])
-        
+        log.debug('metrics table reset')
         self.execute_sql('DROP TABLE IF EXISTS metrics_staging')
         self.execute_sql(self.static_statements['create_metrics_staging_table'])
-        
+        log.debug('metrics_staging table reset')
         self.execute_sql('DROP TABLE IF EXISTS local_metrics')
         self.execute_sql(self.static_statements['create_local_metrics_table'])
-        
+        log.debug('local_metrics table reset')
         self.execute_sql('DROP TABLE IF EXISTS local_metrics_staging')
         self.execute_sql(self.static_statements['create_local_metrics_staging_table'])
+        log.debug('local_metrics_staging table reset')
         
     def get_active_orchs_from_cli(self):
+        log.debug('retrieving active orchs from cli')
         r = requests.get('http://localhost:7935/registeredOrchestrators')
         return r.json()
     
@@ -206,41 +227,50 @@ class LpMetricsDb(Database):
         return statements
 
     def getMetrics(self, ip, port, eth, message=None, signature=None):
-
-        url = 'http://'+ip+':'+port+'/metrics'
-        
-        if message == None or signature == None:
-            r = requests.get(url, verify=False)
-        else:
-            r = requests.post(url, json={'message':message,'signature':signature}, verify=False)
-            #print(r.content)
-            
-        raw = r.text
-        raw_split = raw.split('\n')
-
-        metrics = []
-        
-        for m in raw_split:
-            if (not '#' in m) & ('livepeer' in m):
-                metrics.append(m)
-        
         metrics_parsed = []
-        
-        for m in metrics:
-            l = re.split('{|}',m)
-            metric = str(l[0])
-            tags = str(l[1])
-            value = str(l[-1]).strip()
+        try:
+            log.debug('getMetrics function has been called')
+            url = 'http://'+ip+':'+port+'/metrics'
+            log.debug('getMetrics: url = %s',url)
+            if message == None or signature == None:
+                log.debug('getMetrics: requesting metrics without authentication')
+                r = requests.get(url, verify=False)
+                log.debug('getMetrics: response status code %s',r.status_code)
+                
+            else:
+                log.debug('getMetrics: requesting metrics with authentication')
+                r = requests.post(url, json={'message':message,'signature':signature}, verify=False)
+                log.debug('getMetrics: response status code %s',r.status_code)
+                #print(r.content)
+                
+            raw = r.text
+            raw_split = raw.split('\n')
+    
+            metrics = []
             
-            tags_dict = self.split_with_quotes(tags)
-            #print(tags_dict)
-            tags_dict['ip'] = ip
-            tags_dict['eth'] = eth
+            for m in raw_split:
+                if (not '#' in m) & ('livepeer' in m):
+                    metrics.append(m)
             
-            ID = hashlib.md5(str.encode(metric+tags)).hexdigest()
             
-            metrics_parsed.append({'id':ID,'metric':metric,'tags':json.dumps(tags_dict),'value':value})
-        
+            
+            for m in metrics:
+                l = re.split('{|}',m)
+                metric = str(l[0])
+                tags = str(l[1])
+                value = str(l[-1]).strip()
+                
+                tags_dict = self.split_with_quotes(tags)
+                #print(tags_dict)
+                tags_dict['ip'] = ip
+                tags_dict['eth'] = eth
+                
+                ID = hashlib.md5(str.encode(metric+tags)).hexdigest()
+                
+                metrics_parsed.append({'id':ID,'metric':metric,'tags':json.dumps(tags_dict),'value':value})
+        except Exception as e:
+            log.error('getMetrics function failed: %s', e)
+            
         return metrics_parsed
 
     def split_with_quotes(self, infile):
@@ -264,82 +294,95 @@ class LpMetricsDb(Database):
         
         return tag_dict
     
-    '''
-    def get_orch_metrics_dataframe(self,ip,port):
-        metrics = self.getMetrics(ip, port)
-        df = pd.DataFrame(metrics)
-        return df
-    '''
-    
     def update_local_metrics_staging_in_db(self):
-        metrics = self.getMetrics(self.configs['local_orchestrator']['ip'],self.configs['local_orchestrator']['port'],self.configs['local_orchestrator']['eth'])
-        
+        log.debug('update local metrics staging table')
         self.execute_sql('DROP TABLE IF EXISTS local_metrics_staging')
         self.execute_sql(self.static_statements['create_local_metrics_staging_table'])
         
-        _sql = """INSERT INTO local_metrics_staging (id,metric,tags,value)
-                    VALUES(?,?,?,?)"""
-        print('executing')
-        
-        _data = [tuple(dic.values()) for dic in metrics]
-        self.execmany_sql(_sql,_data)
+        try:
+            metrics = self.getMetrics(self.configs['local_orchestrator']['ip'],self.configs['local_orchestrator']['port'],self.configs['local_orchestrator']['eth'])
+            
+    
+            
+            _sql = """INSERT INTO local_metrics_staging (id,metric,tags,value)
+                        VALUES(?,?,?,?)"""
+            
+            _data = [tuple(dic.values()) for dic in metrics]
+            self.execmany_sql(_sql,_data)
+        except:
+            log.error('failed local metrics staging update')
         
     def update_remote_metrics_staging_in_db(self):
-        metric_list = []
-        for orch in self.configs['participating_orchestrators']:
-            metrics = self.getMetrics(orch['ip'],orch['port'],orch['eth'],message=self.configs['message'],signature=self.configs['signature'])
-            metric_list.append(metrics)
-        
-        metrics = sum(metric_list, [])
-            
+        log.debug('update remote metrics staging table')
         self.execute_sql('DROP TABLE IF EXISTS metrics_staging')
         self.execute_sql(self.static_statements['create_metrics_staging_table'])
         
-        _sql = """INSERT INTO metrics_staging (id,metric,tags,value)
-                    VALUES(?,?,?,?)"""
-        print('executing')
+        metric_list = []
+        for orch in self.configs['participating_orchestrators']:
+            try:
+                metrics = self.getMetrics(orch['ip'],orch['port'],orch['eth'],message=self.configs['message'],signature=self.configs['signature'])
+                metric_list.append(metrics)
+            except:
+                log.error('failed retrieving metrics from %s',orch['ip'])
         
-        _data = [tuple(dic.values()) for dic in metrics]
-        self.execmany_sql(_sql,_data)
+        
+        try:
+            metrics = sum(metric_list, [])
+                
+            _sql = """INSERT INTO metrics_staging (id,metric,tags,value)
+                        VALUES(?,?,?,?)"""
+            
+            _data = [tuple(dic.values()) for dic in metrics]
+            self.execmany_sql(_sql,_data)
+        except:
+            log.error('failed writing data to remote metrics staging')
         
     def update_local_metrics_in_db(self):
-        _sql1 = """INSERT INTO local_metrics
-                    SELECT * FROM local_metrics_staging
-                    WHERE id NOT IN (SELECT id from local_metrics);"""
-        _sql2 = """UPDATE local_metrics
-                    SET value = (SELECT value FROM local_metrics_staging WHERE id = local_metrics.id)
-                    WHERE value <> (SELECT value FROM local_metrics_staging WHERE id = local_metrics.id);"""
-        _sql3 = """DELETE FROM local_metrics WHERE id NOT IN (SELECT id from local_metrics_staging);"""
-        
-        self.execute_sql(_sql1)
-        self.execute_sql(_sql2)
-        self.execute_sql(_sql3)
+        log.debug('syncing local metrics staging to local metrics table')
+        try:
+            _sql1 = """INSERT INTO local_metrics
+                        SELECT * FROM local_metrics_staging
+                        WHERE id NOT IN (SELECT id from local_metrics);"""
+            _sql2 = """UPDATE local_metrics
+                        SET value = (SELECT value FROM local_metrics_staging WHERE id = local_metrics.id)
+                        WHERE value <> (SELECT value FROM local_metrics_staging WHERE id = local_metrics.id);"""
+            _sql3 = """DELETE FROM local_metrics WHERE id NOT IN (SELECT id from local_metrics_staging);"""
+            
+            self.execute_sql(_sql1)
+            self.execute_sql(_sql2)
+            self.execute_sql(_sql3)
+        except Exception as e:
+            log.error('failed syncing local metrics from staging: %s',e)
         
     def update_remote_metrics_in_db(self):
-        _sql1l = """INSERT INTO metrics
-                    SELECT * FROM local_metrics_staging
-                    WHERE id NOT IN (SELECT id from local_metrics);"""
-        _sql1r = """INSERT INTO metrics
-                    SELECT * FROM metrics_staging
-                    WHERE id NOT IN (SELECT id from metrics);"""
-        _sql2l = """UPDATE metrics
-                    SET value = (SELECT value FROM local_metrics_staging WHERE id = metrics.id)
-                    WHERE value <> (SELECT value FROM local_metrics_staging WHERE id = metrics.id);"""
-        _sql2r = """UPDATE metrics
-                    SET value = (SELECT value FROM metrics_staging WHERE id = metrics.id)
-                    WHERE value <> (SELECT value FROM metrics_staging WHERE id = metrics.id);"""
-        _sql3 = """DELETE FROM metrics WHERE id NOT IN (SELECT id from local_metrics_staging) AND id NOT IN (SELECT id from metrics_staging);"""
-        
-        print('1l')
-        self.execute_sql(_sql1l)
-        print('1r')
-        self.execute_sql(_sql1r)
-        print('2l')
-        self.execute_sql(_sql2l)
-        print('2r')
-        self.execute_sql(_sql2r)
-        print('3')
-        self.execute_sql(_sql3)
+        log.debug('syncing all staging to metrics table')
+        try:
+            _sql1l = """INSERT INTO metrics
+                        SELECT * FROM local_metrics_staging
+                        WHERE id NOT IN (SELECT id from metrics);"""
+            _sql1r = """INSERT INTO metrics
+                        SELECT * FROM metrics_staging
+                        WHERE id NOT IN (SELECT id from metrics);"""
+            _sql2l = """UPDATE metrics
+                        SET value = (SELECT value FROM local_metrics_staging WHERE id = metrics.id)
+                        WHERE value <> (SELECT value FROM local_metrics_staging WHERE id = metrics.id);"""
+            _sql2r = """UPDATE metrics
+                        SET value = (SELECT value FROM metrics_staging WHERE id = metrics.id)
+                        WHERE value <> (SELECT value FROM metrics_staging WHERE id = metrics.id);"""
+            _sql3 = """DELETE FROM metrics WHERE id NOT IN (SELECT id from local_metrics_staging) AND id NOT IN (SELECT id from metrics_staging);"""
+            
+            #print('1l')
+            self.execute_sql(_sql1l)
+            #print('1r')
+            self.execute_sql(_sql1r)
+            #print('2l')
+            self.execute_sql(_sql2l)
+            #print('2r')
+            self.execute_sql(_sql2r)
+            #print('3')
+            self.execute_sql(_sql3)
+        except Exception as e:
+            log.error('failed syncing all staging metrics to metrics table: %s',e)
         
     def serve_local_metrics(self):
         metrics = self.sql_to_json('SELECT * FROM local_metrics')
@@ -362,677 +405,29 @@ class LpMetricsDb(Database):
         data = '\n'.join(rows)
         
         return data
-    
-        
-'''    
-    def __load_data_to_db(self):
-        self.__load_managed_policy_actions()
-        self.__load_users()
-        self.__load_user_group_memberships()
-        self.__load_users_managed_policies()
-        self.__load_groups()
-        self.__load_groups_managed_policies()
-        self.__load_managed_policies()
-        self.__load_user_inline_policy_actions()
-        self.__load_group_inline_policy_actions()
-        self.__load_roles()
-        self.__load_roles_managed_policies()
-        self.__load_role_assumerolepolicydocument()
-        self.__load_role_inline_policy_actions()
-        
-    def __load_managed_policies(self):
-        print('__load_managed_policies')
-        for policy in self.raw_data['Policies']:
-            sql_insert = """INSERT INTO managed_policies VALUES ('{arn}','{attachmentcount}','{createdate}','{defaultversionid}','{isattachable}','{policyid}','{policyname}','{updatedate}')""".format(
-                arn=policy['Arn'],
-                attachmentcount=policy['AttachmentCount'],
-                createdate=policy['CreateDate'],
-                defaultversionid=policy['DefaultVersionId'],
-                isattachable=policy['IsAttachable'],
-                policyid=policy['PolicyId'],
-                policyname=policy['PolicyName'],
-                updatedate=policy['UpdateDate'])
-            #insert records
-            self.execute_sql(sql_insert)
-        
-    def __load_groups_managed_policies(self):
-        print('__load_groups_managed_policies')
-        for group in self.raw_data['GroupDetailList']:
-            #generate query statement to populate 'users' table
-            if len(group['AttachedManagedPolicies'])>0:
-                for mpolicy in group['AttachedManagedPolicies']:
-                    sql_insert = """INSERT INTO groups_managed_policies VALUES (null,'{grouparn}','{groupname}','{policyarn}')""".format(
-                        grouparn=group['Arn'],
-                        groupname=group['GroupName'],
-                        policyarn=mpolicy['PolicyArn'])
-                    #insert records
-                    self.execute_sql(sql_insert)
-                    
-    def __load_roles_managed_policies(self):
-        print('__load_roles_managed_policies')
-        for role in self.raw_data['RoleDetailList']:
-            #generate query statement to populate 'users' table
-            if len(role['AttachedManagedPolicies'])>0:
-                for mpolicy in role['AttachedManagedPolicies']:
-                    sql_insert = """INSERT INTO roles_managed_policies VALUES (null,'{rolearn}','{policyarn}')""".format(
-                        rolearn=role['Arn'],
-                        policyarn=mpolicy['PolicyArn'])
-                    #insert records
-                    self.execute_sql(sql_insert)
 
-    def __load_groups(self):
-        print('__load_groups')
-        for group in self.raw_data['GroupDetailList']:
-            #generate query statement to populate 'users' table
-            sql_insert = """INSERT INTO groups VALUES ('{arn}','{groupname}','{groupid}','{createdate}')""".format(
-                arn=group['Arn'],
-                groupname=group['GroupName'],
-                groupid=group['GroupId'],
-                createdate=group['CreateDate'])
-            #insert user in table    
-            self.execute_sql(sql_insert)
-    
-    def __load_users_managed_policies(self):
-        print('__load_users_managed_policies')
-        for user in self.raw_data['UserDetailList']:
-            #iterate through attached managed policies and add to a join table
-            if len(user['AttachedManagedPolicies'])>0:
-                for mpolicy in user['AttachedManagedPolicies']:
-                    sql_insert = """INSERT INTO users_managed_policies VALUES (null,'{userarn}','{policyarn}')""".format(
-                        userarn=str(user['Arn']),
-                        policyarn=mpolicy['PolicyArn'])
-                    #insert records
-                    self.execute_sql(sql_insert)
+    def serve_all_metrics(self):
+        metrics = self.sql_to_json('SELECT * FROM metrics')
+        rows = []
         
-    def __load_users(self):
-        print('__load_users')
-        for user in self.raw_data['UserDetailList']:
-            #generate query statement to populate 'users' table
-            sql_insert = """INSERT INTO users VALUES ('{arn}','{username}','{userid}','{createdate}')""".format(
-                arn=user['Arn'],
-                username=user['UserName'],
-                userid=user['UserId'],
-                createdate=user['CreateDate'])
-            #insert user in table    
-            self.execute_sql(sql_insert)
-
-    def __load_roles(self):
-        print('__load_roles')
-        for role in self.raw_data['RoleDetailList']:
-            #generate query statement to populate 'roles' table
-            sql_insert = """INSERT INTO roles VALUES ('{arn}','{rolename}','{roleid}','{createdate}')""".format(
-                arn=role['Arn'],
-                rolename=role['RoleName'],
-                roleid=role['RoleId'],
-                createdate=role['CreateDate'])
-            #insert user in table    
-            self.execute_sql(sql_insert)
+        for m in metrics:
+            if m['metric'] in self.configs['exclude_metrics']:
+                continue
             
-    def __load_user_group_memberships(self):
-        print('__load_user_group_memberships')
-        for user in self.raw_data['UserDetailList']:
-            #iterate through groups and add to a join table
-            if len(user['GroupList'])>0:
-                for group in user['GroupList']:
-                    sql_insert = """INSERT INTO user_group_membership VALUES (null,'{userarn}','{groupname}')""".format(
-                        userarn=str(user['Arn']),
-                        groupname=group)
-                    #insert records
-                    self.execute_sql(sql_insert)
+            tag = json.loads(m['tags'])
+            tag_str = '{'
+            for key, val in tag.items():
+                tag_str += (key+'='+'"'+val+'",')
+            tag_str = tag_str[:-1]
+            tag_str += '}'
+            
+            row = m['metric']+tag_str+' '+m['value']
+            rows.append(row)
         
-    def __load_managed_policy_actions(self):
-        print('__load_managed_policy_actions')
-        for i, policy in enumerate(self.raw_data['Policies']):
-            for version in policy['PolicyVersionList']:
-                if version['IsDefaultVersion']:
-                    for statement_list in self.make_list(version['Document']):
-                        for statement in self.make_list(statement_list['Statement']):
-                            for action in self.make_list(statement.get('Action',[])):
-                                try:
-                                    action_raw=action
-                                    action_split = str(action_raw).split(':')
-                                    if len(action_split) == 1:
-                                        action_split.append('*')
-                                    
-                                    
-                                    resource_list = self.make_list(statement.get('Resource',[]))
-                                    resource = "\n".join(resource_list)
-                                    
-                                    if len(resource_list)>0:
-                                        if 'Condition' in statement:
-                                            c = json.dumps(statement['Condition'])
-                                        else:
-                                            c = ""
-    
-                                        sql_insert = """INSERT INTO managed_policy_actions VALUES (null,'{_policyarn}','{_versionid}','{_actiontype}','{_action_raw}','{_service}','{_action}','{_action_formatted}','{_resourcetype}','{_resource}','{_effect}','{_condition}')""".format(
-                                            _policyarn=policy['Arn'],
-                                            _versionid=version['VersionId'],
-                                            _actiontype='Action',
-                                            _action_raw=action_raw,
-                                            _service=action_split[0],
-                                            _action=action_split[1],
-                                            _action_formatted = str(action).replace('*', "%"),
-                                            _resourcetype='Resource',
-                                            _resource=resource,
-                                            _effect=statement['Effect'],
-                                            _condition=c)
-                                        #insert records
-                                        self.execute_sql(sql_insert)
-                                    
-                                    resource_list = self.make_list(statement.get('NotResource',[]))
-                                    resource = "\n".join(resource_list)
-                                    
-                                    if len(resource_list)>0:   
-                                        if 'Condition' in statement:
-                                            c = json.dumps(statement['Condition'])
-                                        else:
-                                            c = ""
-                                        sql_insert = """INSERT INTO managed_policy_actions VALUES (null,'{_policyarn}','{_versionid}','{_actiontype}','{_action_raw}','{_service}','{_action}','{_action_formatted}','{_resourcetype}','{_resource}','{_effect}','{_condition}')""".format(
-                                            _policyarn=policy['Arn'],
-                                            _versionid=version['VersionId'],
-                                            _actiontype='Action',
-                                            _action_raw=action_raw,
-                                            _service=action_split[0],
-                                            _action=action_split[1],
-                                            _action_formatted = str(action).replace('*', "%"),
-                                            _resourcetype='NotResource',
-                                            _resource=resource,
-                                            _effect=statement['Effect'],
-                                            _condition=c)
-                                        #insert records
-                                        self.execute_sql(sql_insert)
-                                        #print(c)
-                                except:
-                                    print('error: {}'.format(action))
-                            for action in self.make_list(statement.get('NotAction',[])):
-                                try:
-                                    action_raw=action
-                                    action_split = str(action_raw).split(':')
-                                    if len(action_split) == 1:
-                                        action_split.append('*')     
-                                        
-                                    resource_list = self.make_list(statement.get('Resource',[]))
-                                    resource = "\n".join(resource_list)
-                                    
-                                    if len(resource_list)>0:                                    
-                                        if 'Condition' in statement:
-                                            c = json.dumps(statement['Condition'])
-                                        else:
-                                            c = ""
-                                        sql_insert = """INSERT INTO managed_policy_actions VALUES (null,'{_policyarn}','{_versionid}','{_actiontype}','{_action_raw}','{_service}','{_action}','{_action_formatted}','{_resourcetype}','{_resource}','{_effect}','{_condition}')""".format(
-                                            _policyarn=policy['Arn'],
-                                            _versionid=version['VersionId'],
-                                            _actiontype='NotAction',
-                                            _action_raw=action,
-                                            _service=action_split[0],
-                                            _action=action_split[1],
-                                            _action_formatted = str(action).replace('*', "%"),
-                                            _resourcetype='Resource',
-                                            _resource=resource,
-                                            _effect=statement['Effect'],
-                                            _condition=c)
-                                        #insert records
-                                        self.execute_sql(sql_insert)
-
-                                    resource_list = self.make_list(statement.get('NotResource',[]))
-                                    resource = "\n".join(resource_list)
-                                    
-                                    if len(resource_list)>0:
-                                        if 'Condition' in statement:
-                                            c = json.dumps(statement['Condition'])
-                                        else:
-                                            c = ""
-                                        sql_insert = """INSERT INTO managed_policy_actions VALUES (null,'{_policyarn}','{_versionid}','{_actiontype}','{_action_raw}','{_service}','{_action}','{_action_formatted}','{_resourcetype}','{_resource}','{_effect}','{_condition}')""".format(
-                                            _policyarn=policy['Arn'],
-                                            _versionid=version['VersionId'],
-                                            _actiontype='NotAction',
-                                            _action_raw=action,
-                                            _service=action_split[0],
-                                            _action=action_split[1],
-                                            _action_formatted = str(action).replace('*', "%"),
-                                            _resourcetype='NotResource',
-                                            _resource=resource,
-                                            _effect=statement['Effect'],
-                                            _condition=c)
-                                        #insert records
-                                        self.execute_sql(sql_insert)
-                                        self.execute_sql('CREATE INDEX index_action_formatted ON managed_policy_actions(action_formatted)')
-                                        #print(c)
-                                except:
-                                    print('error: {}'.format(action))
-    def __load_user_inline_policy_actions(self):
-        print('__load_user_inline_policy_actions')
-        for i, user in enumerate(self.raw_data['UserDetailList']):
-            if 'UserPolicyList' in user.keys():
-                for policy in user['UserPolicyList']:
-                    for statement_list in self.make_list(policy['PolicyDocument']):
-                        for statement in self.make_list(statement_list['Statement']):
-                            for action in self.make_list(statement.get('Action',[])):
-                                try:
-                                    action_raw=action
-                                    action_split = str(action_raw).split(':')
-                                    if len(action_split) == 1:
-                                        action_split.append('*')     
-                                    resource_list = self.make_list(statement.get('Resource',[]))
-                                    resource = "\n".join(resource_list)
-                                    
-                                    if len(resource_list)>0:
-                                        if 'Condition' in statement:
-                                            c = json.dumps(statement['Condition'])
-                                        else:
-                                            c = ""
-                                        sql_insert = """INSERT INTO users_inline_policies VALUES (null,'{_userarn}','{_policyname}','{_actiontype}','{_action_raw}','{_service}','{_action}','{_action_formatted}','{_resourcetype}','{_resource}','{_effect}','{_condition}')""".format(
-                                            _userarn=user['Arn'],
-                                            _policyname=policy['PolicyName'],
-                                            _actiontype='Action',
-                                            _action_raw=action,
-                                            _service=action_split[0],
-                                            _action=action_split[1],
-                                            _action_formatted = str(action).replace('*', "%"),
-                                            _resourcetype='Resource',
-                                            _resource=resource,
-                                            _effect=statement['Effect'],
-                                            _condition=c)
-                                        #insert records
-                                        self.execute_sql(sql_insert)
-                                        
-                                    resource_list = self.make_list(statement.get('NotResource',[]))
-                                    resource = "\n".join(resource_list)
-                                    
-                                    if len(resource_list)>0:
-                                        if 'Condition' in statement:
-                                            c = json.dumps(statement['Condition'])
-                                        else:
-                                            c = ""
-                                        sql_insert = """INSERT INTO users_inline_policies VALUES (null,'{_userarn}','{_policyname}','{_actiontype}','{_action_raw}','{_service}','{_action}','{_action_formatted}','{_resourcetype}','{_resource}','{_effect}','{_condition}')""".format(
-                                            _userarn=user['Arn'],
-                                            _policyname=policy['PolicyName'],
-                                            _actiontype='Action',
-                                            _action_raw=action,
-                                            _service=action_split[0],
-                                            _action=action_split[1],
-                                            _action_formatted = str(action).replace('*', "%"),
-                                            _resourcetype='NotResource',
-                                            _resource=resource,
-                                            _effect=statement['Effect'],
-                                            _condition=c)
-                                        #insert records
-                                        self.execute_sql(sql_insert)
-                                        #print(c)
-                                except:
-                                    print('error: {}'.format(action))
-                            for action in self.make_list(statement.get('NotAction',[])):
-                                try:
-                                    action_raw=action
-                                    action_split = str(action_raw).split(':')
-                                    if len(action_split) == 1:
-                                        action_split.append('*')                                     
-                                    resource_list = self.make_list(statement.get('Resource',[]))
-                                    resource = "\n".join(resource_list)
-                                    
-                                    if len(resource_list)>0:
-                                        if 'Condition' in statement:
-                                            c = json.dumps(statement['Condition'])
-                                        else:
-                                            c = ""
-                                        sql_insert = """INSERT INTO users_inline_policies VALUES (null,'{_userarn}','{_policyname}','{_actiontype}','{_action_raw}','{_service}','{_action}','{_action_formatted}','{_resourcetype}','{_resource}','{_effect}','{_condition}')""".format(
-                                            _userarn=user['Arn'],
-                                            _policyname=policy['PolicyName'],
-                                            _actiontype='NotAction',
-                                            _action_raw=action,
-                                            _service=action_split[0],
-                                            _action=action_split[1],
-                                            _action_formatted = str(action).replace('*', "%"),
-                                            _resourcetype='Resource',
-                                            _resource=resource,
-                                            _effect=statement['Effect'],
-                                            _condition=c)
-                                        #insert records
-                                        self.execute_sql(sql_insert)
-                                        
-                                    resource_list = self.make_list(statement.get('NotResource',[]))
-                                    resource = "\n".join(resource_list)
-                                    
-                                    if len(resource_list)>0:
-                                        if 'Condition' in statement:
-                                            c = json.dumps(statement['Condition'])
-                                        else:
-                                            c = ""
-                                        sql_insert = """INSERT INTO users_inline_policies VALUES (null,'{_userarn}','{_policyname}','{_actiontype}','{_action_raw}','{_service}','{_action}','{_action_formatted}','{_resourcetype}','{_resource}','{_effect}','{_condition}')""".format(
-                                            _userarn=user['Arn'],
-                                            _policyname=policy['PolicyName'],
-                                            _actiontype='NotAction',
-                                            _action_raw=action,
-                                            _service=action_split[0],
-                                            _action=action_split[1],
-                                            _action_formatted = str(action).replace('*', "%"),
-                                            _resourcetype='NotResource',
-                                            _resource=resource,
-                                            _effect=statement['Effect'],
-                                            _condition=c)
-                                        #insert records
-                                        self.execute_sql(sql_insert)
-                                        #print(c)
-                                except:
-                                    print('error: {}'.format(action))
-    def __load_role_assumerolepolicydocument(self):
-        print('__load_role_assumerolepolicydocument')
-        for i, role in enumerate(self.raw_data['RoleDetailList']):
-            for statement_list in self.make_list(role['AssumeRolePolicyDocument']):
-                for statement in self.make_list(statement_list['Statement']):
-                    for action in self.make_list(statement.get('Action',[])):
-                        try:
-                            action_raw=action
-                            action_split = str(action_raw).split(':')
-                            if len(action_split) == 1:
-                                action_split.append('*') 
-                                
-                            if 'Condition' in statement:
-                                c = json.dumps(statement['Condition'])
-                            else:
-                                c = ""
-                                
-                            principal_keys = ['AWS','Service','CanonicalUser','Federated']
-                            principals = []
-                            for p in principal_keys:
-                                entities = self.make_list(statement['Principal'].get(p,[]))
-                                for entity in entities:
-                                    principals.append({'type':p, 'entity':entity})
-                                  
-                            for principal in principals:
-                                sql_insert = """INSERT INTO assume_role_policy_documents VALUES (null,"{_rolearn}","{_actiontype}","{_action_raw}","{_action_formatted}","{_service}","{_action}","{_principal_type}","{_principal_entity}","{_effect}",'{_condition}')""".format(
-                                    _rolearn=role['Arn'],
-                                    _actiontype='Action',
-                                    _action_raw=action_raw,
-                                    _service=action_split[0],
-                                    _action=action_split[1],
-                                    _action_formatted = str(action_raw).replace('*', "%"),
-                                    _principal_type=principal['type'],
-                                    _principal_entity=principal['entity'],
-                                    _effect=statement['Effect'],
-                                    _condition=c
-                                    )
-                                #insert records
-                                self.execute_sql(sql_insert)
-                                
-                        except:
-                            print('error: {}'.format(action_raw))
-    
-    def __load_group_inline_policy_actions(self):
-        print('__load_group_inline_policy_actions')
-        for i, group in enumerate(self.raw_data['GroupDetailList']):
-            if 'GroupPolicyList' in group.keys():
-                for policy in group['GroupPolicyList']:
-                    for statement_list in self.make_list(policy['PolicyDocument']):
-                        for statement in self.make_list(statement_list['Statement']):
-                            for action in self.make_list(statement.get('Action',[])):
-                                try:
-                                    action_raw=action
-                                    action_split = str(action_raw).split(':')
-                                    if len(action_split) == 1:
-                                        action_split.append('*')     
-                                    
-                                    resource_list = self.make_list(statement.get('Resource',[]))
-                                    resource = "\n".join(resource_list)
-                                    
-                                    if len(resource_list)>0:
-                                        if 'Condition' in statement:
-                                            c = json.dumps(statement['Condition'])
-                                        else:
-                                            c = ""
-                                        sql_insert = """INSERT INTO groups_inline_policies VALUES (null,'{_groupname}','{_grouparn}','{_policyname}','{_actiontype}','{_action_raw}','{_service}','{_action}','{_action_formatted}','{_resourcetype}','{_resource}','{_effect}','{_condition}')""".format(
-                                            _groupname=group['GroupName'],
-                                            _grouparn=group['Arn'],
-                                            _policyname=policy['PolicyName'],
-                                            _actiontype='Action',
-                                            _action_raw=action_raw,
-                                            _service=action_split[0],
-                                            _action=action_split[1],
-                                            _action_formatted = str(action).replace('*', "%"),
-                                            _resourcetype='Resource',
-                                            _resource=resource,
-                                            _effect=statement['Effect'],
-                                            _condition=c)
-                                        #insert records
-                                        self.execute_sql(sql_insert)
-                                    
-                                    resource_list = self.make_list(statement.get('NotResource',[]))
-                                    resource = "\n".join(resource_list)
-                                    
-                                    if len(resource_list)>0:
-                                        if 'Condition' in statement:
-                                            c = json.dumps(statement['Condition'])
-                                        else:
-                                            c = ""
-                                        sql_insert = """INSERT INTO groups_inline_policies VALUES (null,'{_groupname}','{_grouparn}','{_policyname}','{_actiontype}','{_action_raw}','{_service}','{_action}','{_action_formatted}','{_resourcetype}','{_resource}','{_effect}','{_condition}')""".format(
-                                            _groupname=group['GroupName'],
-                                            _grouparn=group['Arn'],
-                                            _policyname=policy['PolicyName'],
-                                            _actiontype='Action',
-                                            _action_raw=action_raw,
-                                            _service=action_split[0],
-                                            _action=action_split[1],
-                                            _action_formatted = str(action).replace('*', "%"),
-                                            _resourcetype='NotResource',
-                                            _resource=resource,
-                                            _effect=statement['Effect'],
-                                            _condition=c)
-                                        #insert records
-                                        self.execute_sql(sql_insert)
-                                        #print(c)
-                                except:
-                                    print('error: {}'.format(action))
-                            for action in self.make_list(statement.get('NotAction',[])):
-                                try:
-                                    action_raw=action
-                                    action_split = str(action_raw).split(':')
-                                    if len(action_split) == 1:
-                                        action_split.append('*')      
-                                        
-                                    resource_list = self.make_list(statement.get('Resource',[]))
-                                    resource = "\n".join(resource_list)
-                                    
-                                    if len(resource_list)>0:
-                                        if 'Condition' in statement:
-                                            c = json.dumps(statement['Condition'])
-                                        else:
-                                            c = ""
-                                        sql_insert = """INSERT INTO groups_inline_policies VALUES (null,'{_groupname}','{_grouparn}','{_policyname}','{_actiontype}','{_action_raw}','{_service}','{_action}','{_action_formatted}','{_resourcetype}','{_resource}','{_effect}','{_condition}')""".format(
-                                            _groupname=group['GroupName'],
-                                            _grouparn=group['Arn'],
-                                            _policyname=policy['PolicyName'],
-                                            _actiontype='NotAction',
-                                            _action_raw=action_raw,
-                                            _service=action_split[0],
-                                            _action=action_split[1],
-                                            _action_formatted = str(action).replace('*', "%"),
-                                            _resourcetype='Resource',
-                                            _resource=resource,
-                                            _effect=statement['Effect'],
-                                            _condition=c)
-                                        #insert records
-                                        self.execute_sql(sql_insert)
-                                    
-                                    resource_list = self.make_list(statement.get('NotResource',[]))
-                                    resource = "\n".join(resource_list)
-                                    
-                                    if len(resource_list)>0:
-                                        if 'Condition' in statement:
-                                            c = json.dumps(statement['Condition'])
-                                        else:
-                                            c = ""
-                                        sql_insert = """INSERT INTO groups_inline_policies VALUES (null,'{_groupname}','{_grouparn}','{_policyname}','{_actiontype}','{_action_raw}','{_service}','{_action}','{_action_formatted}','{_resourcetype}','{_resource}','{_effect}','{_condition}')""".format(
-                                            _groupname=group['GroupName'],
-                                            _grouparn=group['Arn'],
-                                            _policyname=policy['PolicyName'],
-                                            _actiontype='NotAction',
-                                            _action_raw=action_raw,
-                                            _service=action_split[0],
-                                            _action=action_split[1],
-                                            _action_formatted = str(action).replace('*', "%"),
-                                            _resourcetype='NotResource',
-                                            _resource=resource,
-                                            _effect=statement['Effect'],
-                                            _condition=c)
-                                        #insert records
-                                        self.execute_sql(sql_insert)
-                                        #print(c)
-                                except:
-                                    print('error: {}'.format(action))
-                                    
-    def __load_role_inline_policy_actions(self):
-        print('__load_role_inline_policy_actions')
-        for i, role in enumerate(self.raw_data['RoleDetailList']):
-            if 'RolePolicyList' in role.keys():
-                for policy in role['RolePolicyList']:
-                    for statement_list in self.make_list(policy['PolicyDocument']):
-                        for statement in self.make_list(statement_list['Statement']):
-                            for action in self.make_list(statement.get('Action',[])):
-                                try:
-                                    action_raw=action
-                                    action_split = str(action_raw).split(':')
-                                    if len(action_split) == 1:
-                                        action_split.append('*')  
-                                    
-                                    resource_list = self.make_list(statement.get('Resource',[]))
-                                    resource = "\n".join(resource_list)
-                                    
-                                    if len(resource_list)>0:
-                                        if 'Condition' in statement:
-                                            c = json.dumps(statement['Condition'])
-                                        else:
-                                            c = ""
-                                        sql_insert = """INSERT INTO roles_inline_policies VALUES (null,"{_rolearn}","{_policyname}","{_actiontype}","{_action_raw}","{_service}","{_action}","{_action_formatted}","{_resourcetype}","{_resource}","{_effect}",'{_condition}')""".format(
-                                            _rolearn=role['Arn'],
-                                            _policyname=policy['PolicyName'],
-                                            _actiontype='Action',
-                                            _action_raw=action_raw,
-                                            _service=action_split[0],
-                                            _action=action_split[1],
-                                            _action_formatted = str(action).replace('*', "%"),
-                                            _resourcetype='Resource',
-                                            _resource=resource,
-                                            _effect=statement['Effect'],
-                                            _condition=c)
-                                        #insert records
-                                        self.execute_sql(sql_insert)
-                                    
-                                    resource_list = self.make_list(statement.get('NotResource',[]))
-                                    resource = "\n".join(resource_list)
-                                    
-                                    if len(resource_list)>0:
-                                        if 'Condition' in statement:
-                                            c = json.dumps(statement['Condition'])
-                                        else:
-                                            c = ""
-                                        sql_insert = """INSERT INTO roles_inline_policies VALUES (null,"{_rolearn}","{_policyname}","{_actiontype}","{_action_raw}","{_service}","{_action}","{_action_formatted}","{_resourcetype}","{_resource}","{_effect}",'{_condition}')""".format(
-                                            _rolearn=role['Arn'],
-                                            _policyname=policy['PolicyName'],
-                                            _actiontype='Action',
-                                            _action_raw=action_raw,
-                                            _service=action_split[0],
-                                            _action=action_split[1],
-                                            _action_formatted = str(action).replace('*', "%"),
-                                            _resourcetype='NotResource',
-                                            _resource=resource,
-                                            _effect=statement['Effect'],
-                                            _condition=c)
-                                        #insert records
-                                        self.execute_sql(sql_insert)
-                                        #print(c)
-                                except:
-                                    print('error: {}'.format(action))
-                            for action in self.make_list(statement.get('NotAction',[])):
-                                try:
-                                    action_raw=action
-                                    action_split = str(action_raw).split(':')
-                                    if len(action_split) == 1:
-                                        action_split.append('*')                                  
-                                    
-                                    resource_list = self.make_list(statement.get('Resource',[]))
-                                    resource = "\n".join(resource_list)
-                                    
-                                    if len(resource_list)>0:
-                                        if 'Condition' in statement:
-                                            c = json.dumps(statement['Condition'])
-                                        else:
-                                            c = ""
-                                        sql_insert = """INSERT INTO roles_inline_policies VALUES (null,"{_rolearn}","{_policyname}","{_actiontype}","{_action_raw}","{_service}","{_action}","{_action_formatted}","{_resourcetype}","{_resource}","{_effect}",'{_condition}')""".format(
-                                            _rolearn=role['Arn'],
-                                            _policyname=policy['PolicyName'],
-                                            _actiontype='NotAction',
-                                            _action_raw=action_raw,
-                                            _service=action_split[0],
-                                            _action=action_split[1],
-                                            _action_formatted = str(action).replace('*', "%"),
-                                            _resourcetype='Resource',
-                                            _resource=resource,
-                                            _effect=statement['Effect'],
-                                            _condition=c)
-                                        #insert records
-                                        self.execute_sql(sql_insert)
-                                    
-                                    resource_list = self.make_list(statement.get('NotResource',[]))
-                                    resource = "\n".join(resource_list)
-                                    
-                                    if len(resource_list)>0:
-                                        if 'Condition' in statement:
-                                            c = json.dumps(statement['Condition'])
-                                        else:
-                                            c = ""
-                                        sql_insert = """INSERT INTO roles_inline_policies VALUES (null,"{_rolearn}","{_policyname}","{_actiontype}","{_action_raw}","{_service}","{_action}","{_action_formatted}","{_resourcetype}","{_resource}","{_effect}",'{_condition}')""".format(
-                                            _rolearn=role['Arn'],
-                                            _policyname=policy['PolicyName'],
-                                            _actiontype='NotAction',
-                                            _action_raw=action_raw,
-                                            _service=action_split[0],
-                                            _action=action_split[1],
-                                            _action_formatted = str(action).replace('*', "%"),
-                                            _resourcetype='NotResource',
-                                            _resource=resource,
-                                            _effect=statement['Effect'],
-                                            _condition=c)
-                                        #insert records
-                                        self.execute_sql(sql_insert)
-                                        #print(c)
-                                except:
-                                    print('error: {}'.format(action))
-                                    
-    @property
-    def group_detail_list(self): return self.raw_data['GroupDetailList']
-    
-    @property
-    def user_detail_list(self): return self.raw_data['UserDetailList']
-    
-    @property
-    def group_detail_list(self): return self.raw_data['RoleDetailList']
-    
-    @property
-    def policies(self): return self.raw_data['Policies']
-    
-    @property
-    def users(self):
-        q = """SELECT * FROM users;"""
-        return pd.read_sql_query(q,self.conn)
-    
-    @property
-    def services(self):
-        q = """SELECT DISTINCT service FROM actions_table;"""
-        return pd.read_sql_query(q,self.conn)
-    
-    @property
-    def access_levels(self):
-        q = """SELECT DISTINCT access_level FROM actions_table;"""
-        return pd.read_sql_query(q,self.conn)
-    
-    @property
-    def actions(self):
-        q = """SELECT DISTINCT service, action, description, access_level FROM actions_table;"""
-        df = pd.read_sql_query(q,self.conn)
-        df['formatted'] = df['service'] + ":" + df['action']
-        return df
-
-'''
+        data = '\n'.join(rows)
+        
+        return data
+        
 if __name__ == '__main__':
 
     db = LpMetricsDb('lpmetrics.db')  
