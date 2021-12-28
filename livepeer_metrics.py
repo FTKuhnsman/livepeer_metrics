@@ -25,15 +25,15 @@ log.info('Application has started')
 
 
 from flask import Flask, json, request
-import requests
-import json
-import pandas as pd
-import re
-import socket
-import folium
-import ast
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from io import BytesIO
+#import requests
+#import json
+#import pandas as pd
+#import re
+#import socket
+#import folium
+#import ast
+#from http.server import HTTPServer, BaseHTTPRequestHandler
+#from io import BytesIO
 from threading import Thread
 import time
 import common
