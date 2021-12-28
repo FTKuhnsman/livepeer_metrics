@@ -13,28 +13,29 @@ saved a working version on 11.6.2021 before changing the way this handles '*' ch
 
 import json
 import pandas as pd
-#import xlwings as xw
+import re
 import sqlite3
 from sqlite3 import Error
+import requests
+import functools
+import hashlib
+print = functools.partial(print, flush=True)
 #from datetime import datetime
 #from pypika import Query, Table, Field
-from webscrape import AwsActionTable
 
 class Database:
-    def __init__(self,_db_identifier=None):
+    def __init__(self,_db_identifier):
         self.conn = None
         
-        if _db_identifier is None:
-            self.db_identifier = ":memory:"
-        else:
-            self.db_identifier = _db_identifier
+        self.db_identifier = _db_identifier
             
         self.conn = self.create_connection(self.db_identifier)
         
     def create_connection(self,name):
         conn = None
         try:
-            conn = sqlite3.connect(name)
+            conn = sqlite3.connect(name, check_same_thread=False)
+            
         except Error as e:
             print(e)
         return conn
@@ -44,10 +45,37 @@ class Database:
             try:
                 c = self.conn.cursor()
                 c.execute(_sql_statement)
+                self.conn.commit()
                 return c.fetchall()
             except Error as e:
                 print(e)
                 print(_sql_statement)
+            
+    def sql_to_json(self,_sql_statement):
+        if self.conn is not None:
+            try:
+                c = self.create_connection(self.db_identifier)
+                c.row_factory = sqlite3.Row
+                rows = c.execute(_sql_statement).fetchall()
+                c.commit()
+                c.close()
+                data=[dict(ix) for ix in rows]
+                return data
+            except Error as e:
+                print(e)
+                print(_sql_statement)
+
+    def execmany_sql(self,_sql_statement,_data):
+        if self.conn is not None:
+            try:
+                c = self.conn.cursor()
+                c.executemany(_sql_statement,_data)
+                self.conn.commit()
+                return c.fetchall()
+            except Error as e:
+                print(e)
+                print(_sql_statement)                
+    
             
     def make_list(self,_l):
         if not isinstance(_l, list):
@@ -60,208 +88,237 @@ class Database:
                 return pd.read_sql(_sql_statement, con=self.conn)
             except Error as e:
                 print(e)
+                
+    def get_tables(self):
+        tables = self.execute_sql("SELECT name FROM sqlite_master WHERE type='table';")
+        tlist = [x[0] for x in tables]
+        return tlist
 
-class IamConfig(Database):
+class LpMetricsDb(Database):
     
-    def __init__(self,_json_file=None,_data=None,_db_identifier=None):
+    def __init__(self,_db_identifier=None,_configs=None):
         Database.__init__(self, _db_identifier)
-        self.raw_data = None
-        self.create_table_statements = self.get_create_table_statements()
+        self.static_statements = self.get_static_statements()
+        self.configs = _configs
         
-        self.awsAT = AwsActionTable()
-        #self.awsAT.load_csv('actions_table.csv')
-        self.awsAT.full_table.to_sql('actions_table',self.conn,index=False)
+        self.initialize_db()
         
-        if _data is not None and _json_file is None:
-            self.load_data(_data)
-        elif _data is None and _json_file is not None:
-            self.load_json_data_from_file(_json_file)
-        else:
-            print("Must initiate the instance with either json file or data parameters, not both")
+        
+    def initialize_db(self):
+        tables = self.get_tables()
+        if not 'active_orchs' in tables:
+            print('active_orchs table does not exist... creating table')
+            self.init_active_orchs()
+        elif self.execute_sql('SELECT * FROM active_orchs') == []:
+            print('active_orchs table is empty... populating table')
+            self.init_active_orchs()
+        
+        self.init_metrics_tables()
 
- 
-    def load_json_data_from_file(self,filename):
-        with open(filename) as f:
-            _data = json.load(f)
-            self.raw_data = _data
-        self.__create_tables()
-        self.__load_data_to_db()        
-    
-    def load_data(self,_data):
-        self.raw_data = _data
-        self.__create_tables()
-        self.__load_data_to_db()
+
+    def init_active_orchs(self):
+        self.execute_sql("DROP TABLE IF EXISTS active_orchs")
+        self.execute_sql(self.static_statements['create_active_orchs_table'])
+        orchs = self.get_active_orchs_from_cli()
         
-    def __create_tables(self):
-        for query in self.create_table_statements.items():
-            self.execute_sql(query[1])
-            
-    @staticmethod
-    def get_create_table_statements():
+        for o in orchs:
+            sql_insert = """INSERT INTO active_orchs VALUES (null,'{address}','{delegated_stake}','{fee_share}','{reward_cut}')""".format(
+                address=o['Address'],
+                delegated_stake=o['DelegatedStake'],
+                fee_share=o['FeeShare'],
+                reward_cut=o['RewardCut'])
+            #insert records
+            self.execute_sql(sql_insert)
+        print('active_orchs table created')
+    
+    def init_metrics_tables(self):
+        self.execute_sql('DROP TABLE IF EXISTS metrics')
+        self.execute_sql(self.static_statements['create_metrics_table'])
+        
+        self.execute_sql('DROP TABLE IF EXISTS metrics_staging')
+        self.execute_sql(self.static_statements['create_metrics_staging_table'])
+        
+        self.execute_sql('DROP TABLE IF EXISTS local_metrics')
+        self.execute_sql(self.static_statements['create_local_metrics_table'])
+        
+        self.execute_sql('DROP TABLE IF EXISTS local_metrics_staging')
+        self.execute_sql(self.static_statements['create_local_metrics_staging_table'])
+        
+    def get_active_orchs_from_cli(self):
+        r = requests.get('http://localhost:7935/registeredOrchestrators')
+        return r.json()
+    
+    @property
+    def orch_addresses(self):
+        orchs = self.sql_to_df('SELECT * FROM active_orchs')
+        orch_list = orchs['address'].tolist()
+        return orch_list
+        
+    def get_static_statements(self):
         statements = {}
         
-        #users table
-        __sql_create_users_table = """CREATE TABLE IF NOT EXISTS users (
-                                        arn text PRIMARY KEY,
-                                        username text NOT NULL,
-                                        userid text NOT NULL,
-                                        createdate text NOT NULL
+        #active orchs table
+        __sql_create_active_orch_table = """CREATE TABLE active_orchs (
+                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                        address text NOT NULL,
+                                        delegated_stake integer NOT NULL,
+                                        fee_share integer NOT NULL,
+                                        reward_cut integer NOT NULL
                                     );"""
-        statements['users'] = __sql_create_users_table
+        statements['create_active_orchs_table'] = __sql_create_active_orch_table
 
-        #user_group_membership table
-        __sql_create_user_to_group_table = """CREATE TABLE IF NOT EXISTS user_group_membership (
-                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                        userarn text NOT NULL,
-                                        groupname text NOT NULL
+        #metrics table
+        __sql_create_metrics_table = """CREATE TABLE IF NOT EXISTS metrics (
+                                        id text NOT NULL PRIMARY KEY,
+                                        metric text NOT NULL,
+                                        tags text NOT NULL,
+                                        value text NOT NULL
                                     );"""
-        statements['user_group_membership'] = __sql_create_user_to_group_table
-
-        #users_managed_policies table
-        __sql_create_user_to_managed_policy_table = """CREATE TABLE IF NOT EXISTS users_managed_policies (
-                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                        userarn text NOT NULL,
-                                        policyarn text NOT NULL
-                                    );"""
-        statements['users_managed_policies'] = __sql_create_user_to_managed_policy_table
+        statements['create_metrics_table'] = __sql_create_metrics_table
         
-        #roles_managed_policies table
-        __sql_create_role_to_managed_policy_table = """CREATE TABLE IF NOT EXISTS roles_managed_policies (
-                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                        rolearn text NOT NULL,
-                                        policyarn text NOT NULL
+        #metrics staging table
+        __sql_create_metrics_staging_table = """CREATE TABLE IF NOT EXISTS metrics_staging (
+                                        id text NOT NULL PRIMARY KEY,
+                                        metric text NOT NULL,
+                                        tags text NOT NULL,
+                                        value text NOT NULL
                                     );"""
-        statements['roles_managed_policies'] = __sql_create_role_to_managed_policy_table
+        statements['create_metrics_staging_table'] = __sql_create_metrics_staging_table
         
-        #groups table
-        __sql_create_groups_table = """CREATE TABLE IF NOT EXISTS groups (
-                                        arn text PRIMARY KEY,
-                                        groupname text NOT NULL,
-                                        groupid text NOT NULL,
-                                        createdate text NOT NULL
+        #local_metrics table
+        __sql_create_local_metrics_table = """CREATE TABLE IF NOT EXISTS local_metrics (
+                                        id text NOT NULL PRIMARY KEY,
+                                        metric text NOT NULL,
+                                        tags text NOT NULL,
+                                        value text NOT NULL
                                     );"""
-        statements['groups'] = __sql_create_groups_table
-
-        #groups_managed_policies table
-        __sql_create_groups_to_managed_policy_table = """CREATE TABLE IF NOT EXISTS groups_managed_policies (
-                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                        grouparn text NOT NULL,
-                                        groupname text NOT NULL,
-                                        policyarn text NOT NULL
-                                    );"""
-        statements['groups_managed_policies'] = __sql_create_groups_to_managed_policy_table
-
-        #managed_policies table
-        __sql_create_managed_policy_table = """CREATE TABLE IF NOT EXISTS managed_policies (
-                                        arn text PRIMARY KEY,
-                                        attachmentcount integer NOT NULL,
-                                        createdate text NOT NULL,
-                                        defaultversionid text NOT NULL,
-                                        isattachable boolean NOT NULL,
-                                        policyid text NOT NULL,
-                                        policyname text NOT NULL,
-                                        updatedate text NOT NULL
-                                    );"""
-        statements['managed_policies'] = __sql_create_managed_policy_table
+        statements['create_local_metrics_table'] = __sql_create_local_metrics_table
         
-        #users_inline_policies_actions
-        __sql_create_users_inline_policy_actions_table = """CREATE TABLE IF NOT EXISTS users_inline_policies (
-                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                        userarn text NOT NULL,
-                                        policyname text NOT NULL,
-                                        actiontype text NOT NULL,
-                                        action_raw text NOT NULL,
-                                        action_service text,
-                                        action text,
-                                        action_formatted text NOT NULL,
-                                        resourcetype text NOT NULL,
-                                        resource text NOT NULL,
-                                        effect text NOT NULL,
-                                        condition json
+        #local metrics staging table
+        __sql_create_local_metrics_staging_table = """CREATE TABLE IF NOT EXISTS local_metrics_staging (
+                                        id text NOT NULL PRIMARY KEY,
+                                        metric text NOT NULL,
+                                        tags text NOT NULL,
+                                        value text NOT NULL
                                     );"""
-        statements['user_inline_policy_actions'] = __sql_create_users_inline_policy_actions_table
-        
-        #groups_inline_policies_actions
-        __sql_create_groups_inline_policy_actions_table = """CREATE TABLE IF NOT EXISTS groups_inline_policies (
-                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                        groupname text NOT NULL,
-                                        grouparn text NOT NULL,
-                                        policyname text NOT NULL,
-                                        actiontype text NOT NULL,
-                                        action_raw text NOT NULL,
-                                        action_service text,
-                                        action text,
-                                        action_formatted text NOT NULL,
-                                        resourcetype text NOT NULL,
-                                        resource text NOT NULL,
-                                        effect text NOT NULL,
-                                        condition json
-                                    );"""
-        statements['group_inline_policy_actions'] = __sql_create_groups_inline_policy_actions_table
-
-        #roles_inline_policies_actions
-        __sql_create_role_inline_policy_actions_table = """CREATE TABLE IF NOT EXISTS roles_inline_policies (
-                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                        rolearn text NOT NULL,
-                                        policyname text NOT NULL,
-                                        actiontype text NOT NULL,
-                                        action_raw text NOT NULL,
-                                        action_service text,
-                                        action text,
-                                        action_formatted text NOT NULL,
-                                        resourcetype text NOT NULL,
-                                        resource text NOT NULL,
-                                        effect text NOT NULL,
-                                        condition json
-                                    );"""
-        statements['role_inline_policy_actions'] = __sql_create_role_inline_policy_actions_table
-        
-        #managed_policy_actions table
-        __sql_create_managed_policy_actions_table = """CREATE TABLE IF NOT EXISTS managed_policy_actions (
-                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                        policyarn text NOT NULL,
-                                        versionid text NOT NULL,
-                                        actiontype text NOT NULL,
-                                        action_raw text NOT NULL,
-                                        action_service text,
-                                        action text,
-                                        action_formatted text NOT NULL,
-                                        resourcetype text NOT NULL,
-                                        resource text NOT NULL,
-                                        effect text NOT NULL,
-                                        condition json
-                                    );"""
-        statements['managed_policy_actions'] = __sql_create_managed_policy_actions_table
-
-        #roles table
-        __sql_create_roles_table = """CREATE TABLE IF NOT EXISTS roles (
-                                        arn text PRIMARY KEY,
-                                        rolename text NOT NULL,
-                                        roleid text NOT NULL,
-                                        createdate text NOT NULL
-                                    );"""
-        statements['roles'] = __sql_create_roles_table
-        
-        #assumeRolePolicyDocuments table
-        __sql_create_arpd_table = """CREATE TABLE IF NOT EXISTS assume_role_policy_documents (
-                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                        rolearn text NOT NULL,
-                                        actiontype text NOT NULL,
-                                        action_raw text NOT NULL,
-                                        action_service text,
-                                        action text,
-                                        action_formatted text NOT NULL,
-                                        principal_type text NOT NULL,
-                                        principal_entity text NOT NULL,
-                                        effect text NOT NULL,
-                                        condition json
-                                    );"""
-        statements['arpd'] = __sql_create_arpd_table
-        
-        
+        statements['create_local_metrics_staging_table'] = __sql_create_local_metrics_staging_table
         
         return statements
+
+    def getMetrics(self, ip, port, eth, message=None, signature=None):
+
+        url = 'http://'+ip+':'+port+'/metrics'
+        
+        if message == None or signature == None:
+            r = requests.get(url, verify=False)
+        else:
+            r = requests.post(url, json={'message':message,'signature':signature}, verify=False)
+            print(r.content)
+            
+        raw = r.text
+        raw_split = raw.split('\n')
+
+        metrics = []
+        
+        for m in raw_split:
+            if (not '#' in m) & ('livepeer' in m):
+                metrics.append(m)
+        
+        metrics_parsed = []
+        
+        for m in metrics:
+            l = re.split('{|}',m)
+            metric = str(l[0])
+            tags = str(l[1])
+            value = str(l[-1]).strip()
+            
+            tags_dict = self.split_with_quotes(tags)
+            tags_dict['ip'] = ip
+            tags_dict['eth'] = eth
+            
+            ID = hashlib.md5(str.encode(metric+tags)).hexdigest()
+            
+            metrics_parsed.append({'id':ID,'metric':metric,'tags':json.dumps(tags_dict),'value':value})
+        
+        return metrics_parsed
+
+    def split_with_quotes(self, infile):
     
+        split = 0
+        quote = False
+        tag_list = []
+        tag_dict = {}
+        for i in range(0,len(infile)):
+            if infile[i] == '"':
+                quote = ~quote
+                
+            if (infile[i] == ',') and (quote == False):
+                tag_list.append(infile[split:i])
+                split = i + 1
+                
+        for i in tag_list:
+            x = i.replace('"','')
+            tag = x.split('=')
+            tag_dict[tag[0]] = tag[1]
+        
+        return tag_dict
+    
+    '''
+    def get_orch_metrics_dataframe(self,ip,port):
+        metrics = self.getMetrics(ip, port)
+        df = pd.DataFrame(metrics)
+        return df
+    '''
+    
+    def update_local_metrics_staging_in_db(self):
+        metrics = self.getMetrics(self.configs['local_orchestrator']['ip'],self.configs['local_orchestrator']['port'],self.configs['local_orchestrator']['eth'])
+        
+        self.execute_sql('DROP TABLE IF EXISTS local_metrics_staging')
+        self.execute_sql(self.static_statements['create_local_metrics_staging_table'])
+        
+        _sql = """INSERT INTO local_metrics_staging (id,metric,tags,value)
+                    VALUES(?,?,?,?)"""
+        print('executing')
+        
+        _data = [tuple(dic.values()) for dic in metrics]
+        self.execmany_sql(_sql,_data)
+        
+    def update_local_metrics_in_db(self):
+        _sql1 = """INSERT INTO local_metrics
+                    SELECT * FROM local_metrics_staging
+                    WHERE id NOT IN (SELECT id from local_metrics);"""
+        _sql2 = """UPDATE local_metrics
+                    SET value = (SELECT value FROM local_metrics_staging WHERE id = local_metrics.id)
+                    WHERE value <> (SELECT value FROM local_metrics_staging WHERE id = local_metrics.id);"""
+        _sql3 = """DELETE FROM local_metrics WHERE id NOT IN (SELECT id from local_metrics_staging);"""
+        
+        self.execute_sql(_sql1)
+        self.execute_sql(_sql2)
+        self.execute_sql(_sql3)
+        
+    def serve_local_metrics(self):
+        metrics = self.sql_to_json('SELECT * FROM local_metrics')
+        rows = []
+        
+        for m in metrics:
+            if m['metric'] in self.configs['exclude_metrics']:
+                continue
+            
+            tag = json.loads(m['tags'])
+            tag_str = '{'
+            for key, val in tag.items():
+                tag_str += (key+'='+'"'+val+'",')
+            tag_str = tag_str[:-1]
+            tag_str += '}'
+            
+            row = m['metric']+tag_str+' '+m['value']
+            rows.append(row)
+        
+        data = '\n'.join(rows)
+        
+        return data
+        
+'''    
     def __load_data_to_db(self):
         self.__load_managed_policy_actions()
         self.__load_users()
@@ -929,7 +986,7 @@ class IamConfig(Database):
         df['formatted'] = df['service'] + ":" + df['action']
         return df
 
-
+'''
 if __name__ == '__main__':
 
-    iam = IamConfig(_json_file='CY_auth.json')
+    db = LpMetricsDb('lpmetrics.db')  
