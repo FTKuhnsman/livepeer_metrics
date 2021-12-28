@@ -213,7 +213,7 @@ class LpMetricsDb(Database):
             r = requests.get(url, verify=False)
         else:
             r = requests.post(url, json={'message':message,'signature':signature}, verify=False)
-            print(r.content)
+            #print(r.content)
             
         raw = r.text
         raw_split = raw.split('\n')
@@ -233,6 +233,7 @@ class LpMetricsDb(Database):
             value = str(l[-1]).strip()
             
             tags_dict = self.split_with_quotes(tags)
+            print(tags_dict)
             tags_dict['ip'] = ip
             tags_dict['eth'] = eth
             
@@ -252,7 +253,7 @@ class LpMetricsDb(Database):
             if infile[i] == '"':
                 quote = ~quote
                 
-            if (infile[i] == ',') and (quote == False):
+            if ((infile[i] == ',') or (i == len(infile)-1)) and (quote == False):
                 tag_list.append(infile[split:i])
                 split = i + 1
                 
@@ -277,6 +278,24 @@ class LpMetricsDb(Database):
         self.execute_sql(self.static_statements['create_local_metrics_staging_table'])
         
         _sql = """INSERT INTO local_metrics_staging (id,metric,tags,value)
+                    VALUES(?,?,?,?)"""
+        print('executing')
+        
+        _data = [tuple(dic.values()) for dic in metrics]
+        self.execmany_sql(_sql,_data)
+        
+    def update_remote_metrics_staging_in_db(self):
+        metric_list = []
+        for orch in self.configs['participating_orchestrators']:
+            metrics = self.getMetrics(orch['ip'],orch['port'],orch['eth'],message=self.configs['message'],signature=self.configs['signature'])
+            metric_list.append(metrics)
+        
+        metrics = sum(metric_list, [])
+            
+        self.execute_sql('DROP TABLE IF EXISTS metrics_staging')
+        self.execute_sql(self.static_statements['create_metrics_staging_table'])
+        
+        _sql = """INSERT INTO metrics_staging (id,metric,tags,value)
                     VALUES(?,?,?,?)"""
         print('executing')
         
@@ -317,6 +336,7 @@ class LpMetricsDb(Database):
         data = '\n'.join(rows)
         
         return data
+    
         
 '''    
     def __load_data_to_db(self):
