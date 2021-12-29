@@ -12,6 +12,7 @@ saved a working version on 11.6.2021 before changing the way this handles '*' ch
 """
 import logging
 log = logging.getLogger(__name__)
+
 log.setLevel(logging.DEBUG)
 
 file = logging.FileHandler('app.log')
@@ -256,7 +257,7 @@ class LpMetricsDb(Database):
             
             for m in metrics:
                 l = re.split('{|}',m)
-                metric = str(l[0])
+                metric = 'community_metrics_'+str(l[0])
                 tags = str(l[1])
                 value = str(l[-1]).strip()
                 

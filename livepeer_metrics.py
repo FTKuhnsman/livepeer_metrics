@@ -40,6 +40,11 @@ import common
 import os
 from web3.auto import w3
 from eth_account.messages import encode_defunct
+import multiprocessing
+from multiprocessing import Process
+import gunicorn.app.base
+from os import kill, getpid
+from signal import SIGTERM
 
 
 import functools
@@ -47,6 +52,92 @@ print = functools.partial(print, flush=True)
 
 import importlib
 importlib.reload(common)
+    
+def number_of_workers():
+    #return (multiprocessing.cpu_count() * 2) + 1
+    return 4
+    
+class StandaloneApplication(gunicorn.app.base.BaseApplication):
+
+    def __init__(self, app, options=None):
+        self.options = options or {}
+        self.application = app
+        super().__init__()
+
+    def load_config(self):
+        config = {key: value for key, value in self.options.items()
+                  if key in self.cfg.settings and value is not None}
+        for key, value in config.items():
+            self.cfg.set(key.lower(), value)
+
+    def load(self):
+        return self.application
+
+options = {
+    'bind': '%s:%s' % ('0.0.0.0', '5000'),
+    'workers': number_of_workers(),
+}
+
+def wsgi_tasks():
+    api = Flask(__name__)
+    
+    @api.route('/authenticate', methods=['POST'])
+    def authenticate():
+        log.info('test info')
+        log.debug('test debug')
+        log.warn('test warn')
+        log.error('test error')
+        log.critical('test critical')
+        log.debug('Received authenticate api request')
+        global db
+        #db_flask = common.LpMetricsDb('lpmetrics.db')
+        print(request.json)
+        data = request.json
+        address, authenticated = verify_signature(data['message'], data['signature'], db.orch_addresses)
+        print(address)
+        if authenticated:
+            return 'Success'
+        else:
+            return 'Failure'
+        
+    
+    @api.route('/metrics', methods=['POST'])
+    def get_metrics():
+        log.debug('Received get_metrics api request')
+        global db
+        data = request.json
+        address, authenticated = verify_signature(data['message'], data['signature'], db.orch_addresses)
+        if authenticated:
+            data = db.serve_local_metrics()
+            return data
+        else:
+            return 'Authentication unsuccessful'
+        
+    @api.route('/local_metrics', methods=['GET'])
+    def get_local_metrics():
+        log.debug('Received get_local_metrics api request')
+        global db
+        global configs
+        
+        if request.remote_addr in configs['no_auth_ips']:
+            data = db.serve_local_metrics()
+            return data
+        else:
+            return 'You are not authorized'
+    
+    @api.route('/all_metrics', methods=['GET'])
+    def get_all_metrics():
+        log.debug('Received get_all_metrics api request')
+        global db
+        global configs
+        
+        if request.remote_addr in configs['no_auth_ips']:
+            data = db.serve_all_metrics()
+            return data
+        else:
+            return 'You are not authorized'    
+
+    StandaloneApplication(api, options).run()
 
 
 # variables that are accessible from anywhere
@@ -77,7 +168,7 @@ log.debug('Instantiate a LPMetricsDB object')
 db = common.LpMetricsDb('lpmetrics.db',configs)
 
 log.debug('Instantiate flask app')
-api = Flask(__name__)
+
 
 
 def background_tasks():
@@ -85,8 +176,6 @@ def background_tasks():
     global ignitionD
     global db
     global log
-    
-    
     
     while ignition:
         log.debug('background task loop iteration')
@@ -109,70 +198,31 @@ def verify_signature(message, signature, addresses):
         return None, False
     
 
-@api.route('/authenticate', methods=['POST'])
-def authenticate():
-    log.info('test info')
-    log.debug('test debug')
-    log.warn('test warn')
-    log.error('test error')
-    log.critical('test critical')
-    log.debug('Received authenticate api request')
-    global db
-    #db_flask = common.LpMetricsDb('lpmetrics.db')
-    print(request.json)
-    data = request.json
-    address, authenticated = verify_signature(data['message'], data['signature'], db.orch_addresses)
-    print(address)
-    if authenticated:
-        return 'Success'
-    else:
-        return 'Failure'
-    
 
-@api.route('/metrics', methods=['POST'])
-def get_metrics():
-    log.debug('Received get_metrics api request')
-    global db
-    data = request.json
-    address, authenticated = verify_signature(data['message'], data['signature'], db.orch_addresses)
-    if authenticated:
-        data = db.serve_local_metrics()
-        return data
-    else:
-        return 'Authentication unsuccessful'
-    
-@api.route('/local_metrics', methods=['GET'])
-def get_local_metrics():
-    log.debug('Received get_local_metrics api request')
-    global db
-    global configs
-    
-    if request.remote_addr in configs['no_auth_ips']:
-        data = db.serve_local_metrics()
-        return data
-    else:
-        return 'You are not authorized'
 
-@api.route('/all_metrics', methods=['GET'])
-def get_all_metrics():
-    log.debug('Received get_all_metrics api request')
-    global db
-    global configs
-    
-    if request.remote_addr in configs['no_auth_ips']:
-        data = db.serve_all_metrics()
-        return data
-    else:
-        return 'You are not authorized'
+
 
 if __name__ == '__main__':
     log.debug('starting background thread')
+    
+    bg = multiprocessing.Process(target=wsgi_tasks)
+    bg.daemon = True
+    bg.start()
+    
+    '''
     bg_thread = Thread(target=background_tasks)
     bg_thread.daemon = True
     bg_thread.start()
+    #bg_thread.join()
+    '''
     log.debug('Starting api thread')
-    os.system('gunicorn --bind 0.0.0.0:5000 livepeer_metrics:api' )
+    
+    background_tasks()
+    #StandaloneApplication(api, options).run()
+    #os.system('gunicorn --bind 0.0.0.0:5000 livepeer_metrics:api' )
     #api.run()
 
-    ignition = False
+    #ignition = False
+    
+    
     log.info('All threads have terminated')
