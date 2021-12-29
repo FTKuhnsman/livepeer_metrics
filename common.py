@@ -257,7 +257,7 @@ class LpMetricsDb(Database):
             
             for m in metrics:
                 l = re.split('{|}',m)
-                metric = 'community_metrics_'+str(l[0])
+                metric = str(l[0])
                 tags = str(l[1])
                 value = str(l[-1]).strip()
                 
@@ -432,7 +432,7 @@ class LpMetricsDb(Database):
             tag_str = tag_str[:-1]
             tag_str += '}'
             
-            row = m['metric']+tag_str+' '+m['value']
+            row = 'community_metrics_'+m['metric']+tag_str+' '+m['value']
             rows.append(row)
         
         data = '\n'.join(rows)
