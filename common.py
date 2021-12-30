@@ -27,7 +27,7 @@ stream.setFormatter(streamformat)
 
 log.addHandler(file)
 log.addHandler(stream)
-log.info('Application has started')
+print('Application has started')
 
 import json
 import pandas as pd
@@ -121,16 +121,16 @@ class LpMetricsDb(Database):
         self.configs = _configs
         
         self.initialize_db()
-        log.debug('LPMetricsDB instance init function complete')
+        print('LPMetricsDB instance init function complete')
         
         
     def initialize_db(self):
         tables = self.get_tables()
         if not 'active_orchs' in tables:
-            log.info('active_orchs table does not exist... creating table')
+            print('active_orchs table does not exist... creating table')
             self.init_active_orchs()
         elif self.execute_sql('SELECT * FROM active_orchs') == []:
-            log.info('active_orchs table is empty... populating table')
+            print('active_orchs table is empty... populating table')
             self.init_active_orchs()
         
         self.init_metrics_tables()
@@ -149,25 +149,25 @@ class LpMetricsDb(Database):
                 reward_cut=o['RewardCut'])
             #insert records
             self.execute_sql(sql_insert)
-        log.info('active_orchs table created')
+        print('active_orchs table created')
     
     def init_metrics_tables(self):
         self.execute_sql('DROP TABLE IF EXISTS metrics')
         self.execute_sql(self.static_statements['create_metrics_table'])
-        log.debug('metrics table reset')
+        print('metrics table reset')
         self.execute_sql('DROP TABLE IF EXISTS metrics_staging')
         self.execute_sql(self.static_statements['create_metrics_staging_table'])
-        log.debug('metrics_staging table reset')
+        print('metrics_staging table reset')
         self.execute_sql('DROP TABLE IF EXISTS local_metrics')
         self.execute_sql(self.static_statements['create_local_metrics_table'])
-        log.debug('local_metrics table reset')
+        print('local_metrics table reset')
         self.execute_sql('DROP TABLE IF EXISTS local_metrics_staging')
         self.execute_sql(self.static_statements['create_local_metrics_staging_table'])
-        log.debug('local_metrics_staging table reset')
+        print('local_metrics_staging table reset')
         
     def get_active_orchs_from_cli(self):
-        log.debug('retrieving active orchs from cli')
-        r = requests.get('http://localhost:7935/registeredOrchestrators')
+        print('retrieving active orchs from cli')
+        r = requests.get('http://localhost:7935/registeredOrchestrators', verify=False, timeout=2)
         return r.json()
     
     @property
@@ -230,18 +230,18 @@ class LpMetricsDb(Database):
     def getMetrics(self, ip, port, eth, message=None, signature=None, return_r=False):
         metrics_parsed = []
         try:
-            log.debug('getMetrics function has been called')
+            print('getMetrics function has been called')
             url = 'http://'+ip+':'+port+'/metrics'
-            log.debug('getMetrics: url = %s',url)
+            print('getMetrics: url = %s',url)
             if message == None or signature == None:
-                log.debug('getMetrics: requesting metrics without authentication')
-                r = requests.get(url, verify=False)
-                log.debug('getMetrics: response status code %s',r.status_code)
+                print('getMetrics: requesting metrics without authentication')
+                r = requests.get(url, verify=False, timeout=2)
+                print('getMetrics: response status code %s',r.status_code)
                 
             else:
-                log.debug('getMetrics: requesting metrics with authentication')
-                r = requests.post(url, json={'message':message,'signature':signature}, verify=False)
-                log.debug('getMetrics: response status code %s',r.status_code)
+                print('getMetrics: requesting metrics with authentication')
+                r = requests.post(url, json={'message':message,'signature':signature}, verify=False, timeout=2)
+                print('getMetrics: response status code %s',r.status_code)
                 #print(r.content)
                 
             raw = r.text
@@ -272,7 +272,7 @@ class LpMetricsDb(Database):
                 
                 metrics_parsed.append({'id':ID,'metric':metric,'tags':tags_string,'value':value})
         except Exception as e:
-            log.error('getMetrics function failed: %s', e)
+            print('getMetrics function failed: %s', e)
             return None
         
         if return_r:    
@@ -302,7 +302,7 @@ class LpMetricsDb(Database):
         return tag_dict
     
     def update_local_metrics_staging_in_db(self):
-        log.debug('update local metrics staging table')
+        print('update local metrics staging table')
         self.execute_sql('DROP TABLE IF EXISTS local_metrics_staging')
         self.execute_sql(self.static_statements['create_local_metrics_staging_table'])
         
@@ -316,40 +316,39 @@ class LpMetricsDb(Database):
             
             _data = [tuple(dic.values()) for dic in metrics]
             self.execmany_sql(_sql,_data)
+            print('local metrics staging update complete')
         except:
-            log.error('failed local metrics staging update')
+            print('failed local metrics staging update')
         
     def update_remote_metrics_staging_in_db(self):
-        log.debug('update remote metrics staging table')
+        print('update remote metrics staging table')
         self.execute_sql('DROP TABLE IF EXISTS metrics_staging')
         self.execute_sql(self.static_statements['create_metrics_staging_table'])
         
         metric_list = []
         for orch in self.configs['participating_orchestrators']:
-            try:
-                metrics = self.getMetrics(orch['ip'],orch['port'],orch['eth'],message=self.configs['message'],signature=self.configs['signature'])
-                if metrics != None:
-                    metric_list.append(metrics)
-            except:
-                log.error('failed retrieving metrics from %s',orch['ip'])
+            metrics = self.getMetrics(orch['ip'],orch['port'],orch['eth'],message=self.configs['message'],signature=self.configs['signature'])
+            if metrics != None:
+                metric_list.append(metrics)
+            else:
+                print('failed retrieving metrics from %s',orch['ip'])
         
-        
-        try:
-            if metric_list != []:
-                metrics = sum(metric_list, [])
-                    
-                _sql = """INSERT INTO metrics_staging (id,metric,tags,value)
-                            VALUES(?,?,?,?)"""
+        if metric_list != []:
+            metrics = sum(metric_list, [])
                 
-                _data = [tuple(dic.values()) for dic in metrics]
-                self.execmany_sql(_sql,_data)
-                return metrics
-        except:
-            log.error('failed writing data to remote metrics staging')
+            _sql = """INSERT INTO metrics_staging (id,metric,tags,value)
+                        VALUES(?,?,?,?)"""
+            
+            _data = [tuple(dic.values()) for dic in metrics]
+            self.execmany_sql(_sql,_data)
+            print('remote metrics staging update complete')
+            return metric_list
+        else:
+            print('failed writing data to remote metrics staging')
             return metric_list
         
     def update_local_metrics_in_db(self):
-        log.debug('syncing local metrics staging to local metrics table')
+        print('syncing local metrics staging to local metrics table')
         try:
             _sql1 = """INSERT INTO local_metrics
                         SELECT * FROM local_metrics_staging
@@ -362,11 +361,12 @@ class LpMetricsDb(Database):
             self.execute_sql(_sql1)
             self.execute_sql(_sql2)
             self.execute_sql(_sql3)
+            print('local metrics syncing complete')
         except Exception as e:
-            log.error('failed syncing local metrics from staging: %s',e)
+            print('failed syncing local metrics from staging: %s',e)
         
     def update_remote_metrics_in_db(self):
-        log.debug('syncing all staging to metrics table')
+        print('syncing all staging to metrics table')
         try:
             _sql1l = """INSERT INTO metrics
                         SELECT * FROM local_metrics_staging
@@ -392,8 +392,9 @@ class LpMetricsDb(Database):
             self.execute_sql(_sql2r)
             #print('3')
             self.execute_sql(_sql3)
+            print('all metrics sycing complete')
         except Exception as e:
-            log.error('failed syncing all staging metrics to metrics table: %s',e)
+            print('failed syncing all staging metrics to metrics table: %s',e)
         
     def serve_local_metrics(self):
         metrics = self.sql_to_json('SELECT * FROM local_metrics')
@@ -440,5 +441,28 @@ class LpMetricsDb(Database):
         return data
         
 if __name__ == '__main__':
-
-    db = LpMetricsDb('lpmetrics.db')  
+    configs = {}
+    ignition = True
+    
+    print('Loading configuration file')
+    try:
+        with open('app.conf') as f:
+            lines = f.read().splitlines()
+            for line in lines:
+                if line[0] != '#':
+                    line.replace("\n", '')
+                    key_value = line.split(':')
+                    if key_value[0] in ['local_orchestrator','participating_orchestrators']:
+                        key_value[1] = line.replace(key_value[0]+':','')
+                        key_value[1] = json.loads(key_value[1])
+                    if key_value[0] in ['no_auth_ips']:
+                        key_value[1] = line.replace(key_value[0]+':','')
+                        key_value[1] = str(key_value[1]).split(',')
+                    configs[key_value[0]] = key_value[1]
+            
+            if configs.get('exclude_metrics') == None: configs['exclude_metrics'] = []
+    except Exception as e:
+        print('Error loading configuration file - likely invalid configs: %s',e)
+    
+    print('Instantiate a LPMetricsDB object')
+    db = LpMetricsDb('lpmetrics.db',configs)  

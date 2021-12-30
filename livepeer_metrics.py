@@ -21,7 +21,7 @@ stream.setFormatter(streamformat)
 
 log.addHandler(file)
 log.addHandler(stream)
-log.info('Application has started')
+print('Application has started')
 
 
 from flask import Flask, json, request
@@ -83,12 +83,12 @@ def wsgi_tasks():
     
     @api.route('/authenticate', methods=['POST'])
     def authenticate():
-        log.info('test info')
-        log.debug('test debug')
-        log.warn('test warn')
-        log.error('test error')
-        log.critical('test critical')
-        log.debug('Received authenticate api request')
+        print('test info')
+        print('test debug')
+        print('test warn')
+        print('test error')
+        print('test critical')
+        print('Received authenticate api request')
         global db
         #db_flask = common.LpMetricsDb('lpmetrics.db')
         print(request.json)
@@ -103,36 +103,39 @@ def wsgi_tasks():
     
     @api.route('/metrics', methods=['POST'])
     def get_metrics():
-        log.debug('Received get_metrics api request')
+        print('Received get_metrics api request')
         global db
         data = request.json
         address, authenticated = verify_signature(data['message'], data['signature'], db.orch_addresses)
         if authenticated:
             data = db.serve_local_metrics()
+            print('get_metrics served successfully')
             return data
         else:
             return 'Authentication unsuccessful'
         
     @api.route('/local_metrics', methods=['GET'])
     def get_local_metrics():
-        log.debug('Received get_local_metrics api request')
+        print('Received get_local_metrics api request')
         global db
         global configs
         
         if request.remote_addr in configs['no_auth_ips']:
             data = db.serve_local_metrics()
+            print('get_local_metrics served successfully')
             return data
         else:
             return 'You are not authorized'
     
     @api.route('/all_metrics', methods=['GET'])
     def get_all_metrics():
-        log.debug('Received get_all_metrics api request')
+        print('Received get_all_metrics api request')
         global db
         global configs
         
         if request.remote_addr in configs['no_auth_ips']:
             data = db.serve_all_metrics()
+            print('get_all_metrics served successfully')
             return data
         else:
             return 'You are not authorized'    
@@ -144,7 +147,7 @@ def wsgi_tasks():
 configs = {}
 ignition = True
 
-log.debug('Loading configuration file')
+print('Loading configuration file')
 try:
     with open('app.conf') as f:
         lines = f.read().splitlines()
@@ -162,12 +165,12 @@ try:
         
         if configs.get('exclude_metrics') == None: configs['exclude_metrics'] = []
 except Exception as e:
-    log.fatal('Error loading configuration file - likely invalid configs: %s',e)
+    print('Error loading configuration file - likely invalid configs: %s',e)
 
-log.debug('Instantiate a LPMetricsDB object')
+print('Instantiate a LPMetricsDB object')
 db = common.LpMetricsDb('lpmetrics.db',configs)
 
-log.debug('Instantiate flask app')
+print('Instantiate flask app')
 
 
 
@@ -177,13 +180,14 @@ def background_tasks():
     global db
     global log
     
-    while ignition:
-        log.debug('background task loop iteration')
+    while True:
+        print('background task loop iteration')
         db.update_local_metrics_staging_in_db()
         db.update_local_metrics_in_db()
         db.update_remote_metrics_staging_in_db()
         db.update_remote_metrics_in_db()
-        time.sleep(10)
+        print('background task completed')
+        time.sleep(5)
 
 
 def verify_signature(message, signature, addresses):
@@ -194,7 +198,7 @@ def verify_signature(message, signature, addresses):
         auth = address in addresses
         return address, auth
     except Exception as e:
-        log.error('verify_signature function has failed: %s',e)
+        print('verify_signature function has failed: %s',e)
         return None, False
     
 
@@ -203,19 +207,20 @@ def verify_signature(message, signature, addresses):
 
 
 if __name__ == '__main__':
-    log.debug('starting background thread')
+    print('starting background thread')
     
-    bg = multiprocessing.Process(target=wsgi_tasks)
-    bg.daemon = True
-    bg.start()
-    
+
     '''
     bg_thread = Thread(target=background_tasks)
     bg_thread.daemon = True
     bg_thread.start()
-    #bg_thread.join()
     '''
-    log.debug('Starting api thread')
+    bg = multiprocessing.Process(target=wsgi_tasks)
+    bg.daemon = True
+    bg.start()
+    #bg_thread.join()
+
+    print('Starting api thread')
     
     background_tasks()
     #StandaloneApplication(api, options).run()
@@ -225,4 +230,4 @@ if __name__ == '__main__':
     #ignition = False
     
     
-    log.info('All threads have terminated')
+    print('All threads have terminated')
