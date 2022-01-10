@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Dec 23 16:35:09 2021
-
+TO DO:
+    intermitent issue where 'database locked' error is raised
 @author: ghost
 """
 import logging
@@ -24,7 +25,7 @@ log.addHandler(stream)
 print('Application has started')
 
 
-from flask import Flask, json, request
+from flask import Flask, json, request, jsonify
 #import requests
 #import json
 #import pandas as pd
@@ -139,7 +140,40 @@ def wsgi_tasks():
             return data
         else:
             return 'You are not authorized'    
+    
+    @api.route('/geo_file', methods=['GET'])
+    def get_geo():
+        with open('geomap.json') as f:
+            data = json.load(f)
+            return jsonify(data)
+        
+    @api.route('/geo', methods=['POST'])
+    def get_orchgeo():
+        
+        print('Received getGeoMetrics api request')
+        global db
+        data = request.json
+        address, authenticated = verify_signature(data['message'], data['signature'], db.orch_addresses)
+        if authenticated:
+            data = db.sql_to_json('SELECT * FROM orch_geo_local')
+            print('getGeoMetrics served successfully')
+            return jsonify(data)
+        else:
+            return 'Authentication unsuccessful'
 
+    @api.route('/geo_local', methods=['GET'])
+    def get_orch_geo_local_metrics():
+        print('Received getLocalGeoMetrics api request')
+        global db
+        global configs
+        
+        if request.remote_addr in configs['no_auth_ips']:
+            data = db.sql_to_json('SELECT * FROM orch_geo_local')
+            print('getLocalGeoMetrics served successfully')
+            return jsonify(data)
+        else:
+            return 'You are not authorized'  
+        
     StandaloneApplication(api, options).run()
 
 
