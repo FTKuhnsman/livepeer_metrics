@@ -202,9 +202,11 @@ class LpMetricsDb(Database):
             try:
                 o['lat'] = coord['lat']
                 o['lon'] = coord['lon']
+                o['ip'] = ip
             except:
                 o['lat'] = None
-                o['lon'] = None              
+                o['lon'] = None
+                o['ip'] = ip
         return orchs
     
     def update_orch_geo_local_table(self):
@@ -215,7 +217,7 @@ class LpMetricsDb(Database):
         
         
         for o in orchs:            
-            sql_insert = """INSERT INTO orch_geo_local VALUES (null,'{address}','{delegated_stake}','{fee_share}','{reward_cut}','{service_uri}','{lat}','{lon}','{count}')""".format(
+            sql_insert = """INSERT INTO orch_geo_local VALUES (null,'{address}','{delegated_stake}','{fee_share}','{reward_cut}','{service_uri}','{lat}','{lon}','{count}','{ip}')""".format(
                 address=o['address'][2:],
                 delegated_stake=o['delegated_stake'],
                 fee_share=o['fee_share'],
@@ -223,7 +225,8 @@ class LpMetricsDb(Database):
                 service_uri=o['service_uri'],
                 lat=o['lat'],
                 lon=o['lon'],
-                count=1)
+                count=1,
+                ip=o['ip'])
             #insert records
             if o['lat'] == None: continue
             self.execute_sql(sql_insert)
@@ -260,9 +263,24 @@ class LpMetricsDb(Database):
                                         service_uri text,
                                         lat text,
                                         lon text,
-                                        count
+                                        count,
+                                        ip
                                     );"""
         statements['create_orch_geo_local_table'] = __sql_create_orch_geo_local_table
+        
+        __sql_create_orch_geo_global_table = """CREATE TABLE orch_geo_global (
+                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                        address text NOT NULL,
+                                        delegated_stake integer NOT NULL,
+                                        fee_share integer NOT NULL,
+                                        reward_cut integer NOT NULL,
+                                        service_uri text,
+                                        lat text,
+                                        lon text,
+                                        count,
+                                        ip
+                                    );"""
+        statements['create_orch_geo_global_table'] = __sql_create_orch_geo_global_table
 
         #metrics table
         __sql_create_metrics_table = """CREATE TABLE IF NOT EXISTS metrics (
@@ -303,8 +321,7 @@ class LpMetricsDb(Database):
         return statements
     
     def getGeoMetrics(self, ip, port, eth, message=None, signature=None, return_r=False):
-        pass
-        metrics_parsed = []
+
         try:
             print('getGeoMetrics function has been called')
             url = 'http://'+ip+':'+port+'/geo'
@@ -319,7 +336,7 @@ class LpMetricsDb(Database):
                 r = requests.post(url, json={'message':message,'signature':signature}, verify=False, timeout=2)
                 print('getGeoMetrics: response status code %s',r.status_code)
                 #print(r.content)
-                return r
+                return r.json()
             
             '''
             raw = r.text
@@ -353,10 +370,7 @@ class LpMetricsDb(Database):
         except Exception as e:
             print('getGeoMetrics function failed: %s', e)
             
-        if r.status_code==200:
-            return r
-        else:
-            return None
+        return None
         
 
         
@@ -436,22 +450,33 @@ class LpMetricsDb(Database):
     
     def update_geo_data_in_db(self):
         print('update geo staging table')
-        self.execute_sql('DROP TABLE IF EXISTS local_metrics_staging')
-        self.execute_sql(self.static_statements['create_local_metrics_staging_table'])
+        self.execute_sql('DROP TABLE IF EXISTS orch_geo_global')
+        self.execute_sql(self.static_statements['create_orch_geo_global_table'])
         
-        try:
-            metrics = self.getMetrics(self.configs['local_orchestrator']['ip'],self.configs['local_orchestrator']['port'],self.configs['local_orchestrator']['eth'])
-            
-    
-            
-            _sql = """INSERT INTO local_metrics_staging (id,metric,tags,value)
-                        VALUES(?,?,?,?)"""
-            
-            _data = [tuple(dic.values()) for dic in metrics]
+        orch_geo_list = []
+        
+        
+        
+        for orch in self.configs['participating_orchestrators']:
+            geo = self.getGeoMetrics(orch['ip'],orch['port'],orch['eth'],message=self.configs['message'],signature=self.configs['signature'])
+            if geo != None:
+                orch_geo_list.append(geo)
+            else:
+                print('failed retrieving geo stats from %s',orch['ip'])
+        
+        if orch_geo_list != []:
+            geo = sum(orch_geo_list, [])
+                
+            _sql = """INSERT INTO orch_geo_global (id,address,delegated_stake,fee_share,reward_cut,service_uri,lat,lon,count,ip)
+                        VALUES(?,?,?,?,?,?,?,?,?,?)"""
+
+            _data = [tuple(dic.values()) for dic in geo]
             self.execmany_sql(_sql,_data)
-            print('local metrics staging update complete')
-        except:
-            print('failed local metrics staging update')    
+            print('remote metrics staging update complete')
+            return metric_list
+        else:
+            print('failed writing data to remote metrics staging')
+            return metric_list 
     
     def update_local_metrics_staging_in_db(self):
         print('update local metrics staging table')
