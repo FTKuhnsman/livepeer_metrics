@@ -37,6 +37,7 @@ from sqlite3 import Error
 import requests
 import functools
 import hashlib
+import socket
 
 print = functools.partial(print, flush=True)
 #from datetime import datetime
@@ -121,6 +122,7 @@ class LpMetricsDb(Database):
         self.configs = _configs
         
         self.initialize_db()
+        self.update_orch_geo_local_table()
         print('LPMetricsDB instance init function complete')
         
         
@@ -141,12 +143,13 @@ class LpMetricsDb(Database):
         self.execute_sql(self.static_statements['create_active_orchs_table'])
         orchs = self.get_active_orchs_from_cli()
         
-        for o in orchs:
-            sql_insert = """INSERT INTO active_orchs VALUES (null,'{address}','{delegated_stake}','{fee_share}','{reward_cut}')""".format(
+        for o in orchs:            
+            sql_insert = """INSERT INTO active_orchs VALUES (null,'{address}','{delegated_stake}','{fee_share}','{reward_cut}','{service_uri}')""".format(
                 address=o['Address'],
                 delegated_stake=o['DelegatedStake'],
                 fee_share=o['FeeShare'],
-                reward_cut=o['RewardCut'])
+                reward_cut=o['RewardCut'],
+                service_uri=o['ServiceURI'])
             #insert records
             self.execute_sql(sql_insert)
         print('active_orchs table created')
@@ -167,8 +170,66 @@ class LpMetricsDb(Database):
         
     def get_active_orchs_from_cli(self):
         print('retrieving active orchs from cli')
-        r = requests.get('http://localhost:7935/registeredOrchestrators', verify=False, timeout=2)
+        r = requests.get('http://localhost:7935/registeredOrchestrators', verify=False)
         return r.json()
+    
+    def parse_ip(self,url):
+        try:
+            host = re.search("https://(.*?)\:", url).group(1)
+            ip = socket.gethostbyname(host)
+        except:
+            ip = None    
+        return ip
+    
+    def get_ip_loc(self,ip):
+        try:
+            url = 'http://ipinfo.io/{}'.format(ip)
+            response = requests.get(url)
+            rjs = response.json()
+            loc = rjs['loc'].split(',')
+            
+            d_loc = {'lat':float(loc[0]), 'lon':float(loc[1])}
+            return d_loc
+        except:
+            return None
+    
+    def get_orch_geo_local(self):
+        orchs = self.sql_to_json('SELECT * FROM active_orchs')
+        for o in orchs:
+            ip = self.parse_ip(o['service_uri'])
+            print(ip)
+            coord = self.get_ip_loc(ip)
+            try:
+                o['lat'] = coord['lat']
+                o['lon'] = coord['lon']
+            except:
+                o['lat'] = None
+                o['lon'] = None              
+        return orchs
+    
+    def update_orch_geo_local_table(self):
+        orchs = self.get_orch_geo_local()
+        self.execute_sql('DROP TABLE IF EXISTS orch_geo_local')
+        self.execute_sql(self.static_statements['create_orch_geo_local_table'])
+        
+        
+        
+        for o in orchs:            
+            sql_insert = """INSERT INTO orch_geo_local VALUES (null,'{address}','{delegated_stake}','{fee_share}','{reward_cut}','{service_uri}','{lat}','{lon}','{count}')""".format(
+                address=o['address'][2:],
+                delegated_stake=o['delegated_stake'],
+                fee_share=o['fee_share'],
+                reward_cut=o['reward_cut'],
+                service_uri=o['service_uri'],
+                lat=o['lat'],
+                lon=o['lon'],
+                count=1)
+            #insert records
+            if o['lat'] == None: continue
+            self.execute_sql(sql_insert)
+        print('orch_geo_local table created')        
+        
+            
     
     @property
     def orch_addresses(self):
@@ -185,9 +246,23 @@ class LpMetricsDb(Database):
                                         address text NOT NULL,
                                         delegated_stake integer NOT NULL,
                                         fee_share integer NOT NULL,
-                                        reward_cut integer NOT NULL
+                                        reward_cut integer NOT NULL,
+                                        service_uri text
                                     );"""
         statements['create_active_orchs_table'] = __sql_create_active_orch_table
+        
+        __sql_create_orch_geo_local_table = """CREATE TABLE orch_geo_local (
+                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                        address text NOT NULL,
+                                        delegated_stake integer NOT NULL,
+                                        fee_share integer NOT NULL,
+                                        reward_cut integer NOT NULL,
+                                        service_uri text,
+                                        lat text,
+                                        lon text,
+                                        count
+                                    );"""
+        statements['create_orch_geo_local_table'] = __sql_create_orch_geo_local_table
 
         #metrics table
         __sql_create_metrics_table = """CREATE TABLE IF NOT EXISTS metrics (
@@ -226,7 +301,65 @@ class LpMetricsDb(Database):
         statements['create_local_metrics_staging_table'] = __sql_create_local_metrics_staging_table
         
         return statements
+    
+    def getGeoMetrics(self, ip, port, eth, message=None, signature=None, return_r=False):
+        pass
+        metrics_parsed = []
+        try:
+            print('getGeoMetrics function has been called')
+            url = 'http://'+ip+':'+port+'/geo'
+            print('getGeoMetrics: url = %s',url)
+            if message == None or signature == None:
+                print('getGeoMetrics: requesting metrics without authentication')
+                r = requests.get(url, verify=False, timeout=2)
+                print('getGeoMetrics: response status code %s',r.status_code)
+                
+            else:
+                print('getGeoMetrics: requesting metrics with authentication')
+                r = requests.post(url, json={'message':message,'signature':signature}, verify=False, timeout=2)
+                print('getGeoMetrics: response status code %s',r.status_code)
+                #print(r.content)
+                return r
+            
+            '''
+            raw = r.text
+            raw_split = raw.split('\n')
+    
+            metrics = []
+            
+            for m in raw_split:
+                if (not '#' in m) & ('livepeer' in m):
+                    metrics.append(m)
+            
+            
+            
+            for m in metrics:
+                l = re.split('{|}',m)
+                metric = str(l[0])
+                tags = str(l[1])
+                value = str(l[-1]).strip()
+                
+                tags_dict = self.split_with_quotes(tags)
+                #print(tags_dict)
+                tags_dict['ip'] = ip
+                tags_dict['eth'] = eth
+                
+                tags_string = json.dumps(tags_dict)
+                
+                ID = hashlib.md5(str.encode(metric+tags_string)).hexdigest()
+                
+                metrics_parsed.append({'id':ID,'metric':metric,'tags':tags_string,'value':value})
+            '''
+        except Exception as e:
+            print('getGeoMetrics function failed: %s', e)
+            
+        if r.status_code==200:
+            return r
+        else:
+            return None
+        
 
+        
     def getMetrics(self, ip, port, eth, message=None, signature=None, return_r=False):
         metrics_parsed = []
         try:
@@ -300,6 +433,25 @@ class LpMetricsDb(Database):
             tag_dict[tag[0]] = tag[1]
         
         return tag_dict
+    
+    def update_geo_data_in_db(self):
+        print('update geo staging table')
+        self.execute_sql('DROP TABLE IF EXISTS local_metrics_staging')
+        self.execute_sql(self.static_statements['create_local_metrics_staging_table'])
+        
+        try:
+            metrics = self.getMetrics(self.configs['local_orchestrator']['ip'],self.configs['local_orchestrator']['port'],self.configs['local_orchestrator']['eth'])
+            
+    
+            
+            _sql = """INSERT INTO local_metrics_staging (id,metric,tags,value)
+                        VALUES(?,?,?,?)"""
+            
+            _data = [tuple(dic.values()) for dic in metrics]
+            self.execmany_sql(_sql,_data)
+            print('local metrics staging update complete')
+        except:
+            print('failed local metrics staging update')    
     
     def update_local_metrics_staging_in_db(self):
         print('update local metrics staging table')
