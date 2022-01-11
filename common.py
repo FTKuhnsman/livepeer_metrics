@@ -122,6 +122,7 @@ class LpMetricsDb(Database):
         self.configs = _configs
         
         self.initialize_db()
+        self.init_active_orchs()
         self.update_orch_geo_local_table()
         print('LPMetricsDB instance init function complete')
         
@@ -183,7 +184,7 @@ class LpMetricsDb(Database):
     
     def get_ip_loc(self,ip):
         try:
-            url = 'http://ipinfo.io/{}'.format(ip)
+            url = 'http://ipinfo.io/{}/?token=5a06a4a8675de2'.format(ip)
             response = requests.get(url)
             rjs = response.json()
             loc = rjs['loc'].split(',')
@@ -269,7 +270,6 @@ class LpMetricsDb(Database):
         statements['create_orch_geo_local_table'] = __sql_create_orch_geo_local_table
         
         __sql_create_orch_geo_global_table = """CREATE TABLE orch_geo_global (
-                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
                                         address text NOT NULL,
                                         delegated_stake integer NOT NULL,
                                         fee_share integer NOT NULL,
@@ -320,6 +320,21 @@ class LpMetricsDb(Database):
         
         return statements
     
+    def getGeoWithMetrics(self):
+        js = self.sql_to_json('SELECT * FROM metrics')
+        
+        for m in js:
+            m.update(json.loads(m['tags']))
+            del m['tags']
+            m['address'] = m['eth'][2:]
+            
+        
+        df1 = pd.DataFrame(js)
+        df2 = self.sql_to_df('SELECT * FROM orch_geo_global')
+        df3 = df1.merge(df2, how = 'left', on=['address','ip'])
+        
+        return df3
+        
     def getGeoMetrics(self, ip, port, eth, message=None, signature=None, return_r=False):
 
         try:
@@ -455,28 +470,37 @@ class LpMetricsDb(Database):
         
         orch_geo_list = []
         
-        
+        local = self.sql_to_json('SELECT * FROM orch_geo_local')
+        df_local = pd.DataFrame(local)
+        orch_geo_list.append(df_local)
         
         for orch in self.configs['participating_orchestrators']:
             geo = self.getGeoMetrics(orch['ip'],orch['port'],orch['eth'],message=self.configs['message'],signature=self.configs['signature'])
+            
             if geo != None:
-                orch_geo_list.append(geo)
+                df_geo = pd.DataFrame(geo)
+                orch_geo_list.append(df_geo)
             else:
                 print('failed retrieving geo stats from %s',orch['ip'])
         
         if orch_geo_list != []:
-            geo = sum(orch_geo_list, [])
-                
-            _sql = """INSERT INTO orch_geo_global (id,address,delegated_stake,fee_share,reward_cut,service_uri,lat,lon,count,ip)
-                        VALUES(?,?,?,?,?,?,?,?,?,?)"""
+            df_full = pd.concat(orch_geo_list)
+            df_full.drop_duplicates(subset=['address','ip'],inplace=True)
+            df_full.drop(columns=['id'],inplace=True)
+            geo_js = df_full.to_dict(orient='records')
+            _data = [tuple(dic.values()) for dic in geo_js]
+            
+            
+            _sql = """INSERT INTO orch_geo_global (address,delegated_stake,fee_share,reward_cut,service_uri,lat,lon,count,ip)
+                        VALUES(?,?,?,?,?,?,?,?,?)"""
 
-            _data = [tuple(dic.values()) for dic in geo]
             self.execmany_sql(_sql,_data)
             print('remote metrics staging update complete')
-            return metric_list
+            return df_full
+            
         else:
             print('failed writing data to remote metrics staging')
-            return metric_list 
+            return None 
     
     def update_local_metrics_staging_in_db(self):
         print('update local metrics staging table')

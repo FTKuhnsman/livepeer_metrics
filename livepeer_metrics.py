@@ -172,7 +172,34 @@ def wsgi_tasks():
             print('getLocalGeoMetrics served successfully')
             return jsonify(data)
         else:
+            return 'You are not authorized'
+        
+    @api.route('/geo_prometheus', methods=['GET'])
+    def get_orch_geo_prometheus_metrics():
+        print('Received getPrometheusGeoMetrics api request')
+        global db
+        global configs
+        
+        if request.remote_addr in configs['no_auth_ips']:
+            data = db.sql_to_json('SELECT * FROM orch_geo_global')
+            print('getPrometheusGeoMetrics served successfully')
+            return jsonify(data)
+        else:
             return 'You are not authorized'  
+
+    @api.route('/metrics_json', methods=['GET'])
+    def get_metrics_json():
+        print('Received getLocalGeoMetrics api request')
+        global db
+        global configs
+        
+        if request.remote_addr in configs['no_auth_ips']:
+            df_data = db.getGeoWithMetrics()
+            df_data.fillna('',inplace=True)
+            data = df_data.to_dict(orient='records')
+            return jsonify(data)
+        else:
+            return 'You are not authorized'
         
     StandaloneApplication(api, options).run()
 
