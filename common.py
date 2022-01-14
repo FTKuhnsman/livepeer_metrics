@@ -120,10 +120,11 @@ class LpMetricsDb(Database):
         Database.__init__(self, _db_identifier)
         self.static_statements = self.get_static_statements()
         self.configs = _configs
+        self.ethAddr = self.get_ethAddr()
         
         self.initialize_db()
-        self.init_active_orchs()
-        self.update_orch_geo_local_table()
+        #self.init_active_orchs()
+        #self.update_orch_geo_local_table()
         print('LPMetricsDB instance init function complete')
         
         
@@ -508,7 +509,7 @@ class LpMetricsDb(Database):
         self.execute_sql(self.static_statements['create_local_metrics_staging_table'])
         
         try:
-            metrics = self.getMetrics(self.configs['local_orchestrator']['ip'],self.configs['local_orchestrator']['port'],self.configs['local_orchestrator']['eth'])
+            metrics = self.getMetrics(self.configs['local_orch_public_ip'],self.configs['local_orch_cli_port'],self.ethAddr)
             
     
             
@@ -640,26 +641,34 @@ class LpMetricsDb(Database):
         data = '\n'.join(rows)
         
         return data
+    
+    def get_ethAddr(self):
+        url = 'http://localhost:'+self.configs['local_orch_cli_port']+'/ethAddr'
+        r = requests.get(url, verify=False, timeout=2)
+        return r.text[2:]
         
 if __name__ == '__main__':
     configs = {}
     ignition = True
+    configs['participating_orchestrators'] = []
+    configs['no_auth_ips'] = []
     
     print('Loading configuration file')
     try:
         with open('app.conf') as f:
             lines = f.read().splitlines()
             for line in lines:
-                if line[0] != '#':
-                    line.replace("\n", '')
-                    key_value = line.split(':')
-                    if key_value[0] in ['local_orchestrator','participating_orchestrators']:
-                        key_value[1] = line.replace(key_value[0]+':','')
-                        key_value[1] = json.loads(key_value[1])
-                    if key_value[0] in ['no_auth_ips']:
-                        key_value[1] = line.replace(key_value[0]+':','')
-                        key_value[1] = str(key_value[1]).split(',')
-                    configs[key_value[0]] = key_value[1]
+                if  ':' in line:
+                    if line[0] != '#':
+                        line.replace("\n", '')
+                        key_value = line.split(':')
+                        if key_value[0] == 'participating_orchestrator':
+                            value = line.replace(key_value[0]+':','')
+                            configs['participating_orchestrators'].append(json.loads(value))
+                        elif key_value[0] == 'no_auth_ips':
+                            configs['no_auth_ips'].append(key_value[1])
+                        else:
+                            configs[key_value[0]] = key_value[1]
             
             if configs.get('exclude_metrics') == None: configs['exclude_metrics'] = []
     except Exception as e:

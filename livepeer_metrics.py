@@ -127,6 +127,7 @@ def wsgi_tasks():
             return data
         else:
             return 'You are not authorized'
+        
     
     @api.route('/all_metrics', methods=['GET'])
     def get_all_metrics():
@@ -207,22 +208,25 @@ def wsgi_tasks():
 # variables that are accessible from anywhere
 configs = {}
 ignition = True
+configs['participating_orchestrators'] = []
+configs['no_auth_ips'] = []
 
 print('Loading configuration file')
 try:
     with open('app.conf') as f:
         lines = f.read().splitlines()
         for line in lines:
-            if line[0] != '#':
-                line.replace("\n", '')
-                key_value = line.split(':')
-                if key_value[0] in ['local_orchestrator','participating_orchestrators']:
-                    key_value[1] = line.replace(key_value[0]+':','')
-                    key_value[1] = json.loads(key_value[1])
-                if key_value[0] in ['no_auth_ips']:
-                    key_value[1] = line.replace(key_value[0]+':','')
-                    key_value[1] = str(key_value[1]).split(',')
-                configs[key_value[0]] = key_value[1]
+            if  ':' in line:
+                if line[0] != '#':
+                    line.replace("\n", '')
+                    key_value = line.split(':')
+                    if key_value[0] == 'participating_orchestrator':
+                        value = line.replace(key_value[0]+':','')
+                        configs['participating_orchestrators'].append(json.loads(value))
+                    elif key_value[0] == 'no_auth_ips':
+                        configs['no_auth_ips'].append(key_value[1])
+                    else:
+                        configs[key_value[0]] = key_value[1]
         
         if configs.get('exclude_metrics') == None: configs['exclude_metrics'] = []
 except Exception as e:
