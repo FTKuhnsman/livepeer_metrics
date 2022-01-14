@@ -390,26 +390,29 @@ class LpMetricsDb(Database):
         
 
         
-    def getMetrics(self, ip, port, eth, message=None, signature=None, return_r=False):
+    def getMetrics(self, ip, port, message=None, signature=None, return_r=False):
         metrics_parsed = []
         try:
             print('getMetrics function has been called')
             url = 'http://'+ip+':'+port+'/metrics'
+            eth_url = 'http://'+ip+':'+port+'/ethAddr'
             print('getMetrics: url = %s',url)
             if message == None or signature == None:
                 print('getMetrics: requesting metrics without authentication')
                 r = requests.get(url, verify=False, timeout=2)
+                r_eth = requests.get(eth_url, verify=False, timeout=2)
                 print('getMetrics: response status code %s',r.status_code)
                 
             else:
                 print('getMetrics: requesting metrics with authentication')
                 r = requests.post(url, json={'message':message,'signature':signature}, verify=False, timeout=2)
+                r_eth = requests.post(eth_url, json={'message':message,'signature':signature}, verify=False, timeout=2)
                 print('getMetrics: response status code %s',r.status_code)
                 #print(r.content)
                 
             raw = r.text
             raw_split = raw.split('\n')
-    
+            eth = r_eth.text
             metrics = []
             
             for m in raw_split:
@@ -529,7 +532,7 @@ class LpMetricsDb(Database):
         
         metric_list = []
         for orch in self.configs['participating_orchestrators']:
-            metrics = self.getMetrics(orch['ip'],orch['port'],orch['eth'],message=self.configs['message'],signature=self.configs['signature'])
+            metrics = self.getMetrics(orch['ip'],orch['port'],message=self.configs['message'],signature=self.configs['signature'])
             if metrics != None:
                 metric_list.append(metrics)
             else:
