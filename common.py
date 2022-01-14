@@ -220,7 +220,7 @@ class LpMetricsDb(Database):
         
         for o in orchs:            
             sql_insert = """INSERT INTO orch_geo_local VALUES (null,'{address}','{delegated_stake}','{fee_share}','{reward_cut}','{service_uri}','{lat}','{lon}','{count}','{ip}')""".format(
-                address=o['address'][2:],
+                address=o['address'],
                 delegated_stake=o['delegated_stake'],
                 fee_share=o['fee_share'],
                 reward_cut=o['reward_cut'],
@@ -327,7 +327,7 @@ class LpMetricsDb(Database):
         for m in js:
             m.update(json.loads(m['tags']))
             del m['tags']
-            m['address'] = m['eth'][2:]
+            m['address'] = m['eth']
             
         
         df1 = pd.DataFrame(js)
@@ -413,6 +413,7 @@ class LpMetricsDb(Database):
             raw = r.text
             raw_split = raw.split('\n')
             eth = r_eth.text
+            if eth[:2] == '0x': eth = eth[2:]
             metrics = []
             
             for m in raw_split:
@@ -512,7 +513,7 @@ class LpMetricsDb(Database):
         self.execute_sql(self.static_statements['create_local_metrics_staging_table'])
         
         try:
-            metrics = self.getMetrics(self.configs['local_orch_public_ip'],self.configs['local_orch_cli_port'],self.ethAddr)
+            metrics = self.getMetrics(self.configs['local_orch_public_ip'],self.configs['local_orch_cli_port'])
             
     
             
