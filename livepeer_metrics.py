@@ -100,8 +100,20 @@ def wsgi_tasks():
             return 'Success'
         else:
             return 'Failure'
-        
     
+    @api.route('/ethAddr', methods=['POST'])
+    def get_ethAddr():
+        print('Received get_ethAddr api request')
+        global db
+        data = request.json
+        address, authenticated = verify_signature(data['message'], data['signature'], db.orch_addresses)
+        if authenticated:
+            data = db.get_ethAddr()
+            print('get_metrics served successfully')
+            return data
+        else:
+            return 'Authentication unsuccessful'
+        
     @api.route('/metrics', methods=['POST'])
     def get_metrics():
         print('Received get_metrics api request')
