@@ -256,13 +256,14 @@ def background_tasks():
     global ignitionD
     global db
     global log
-    
+
     while True:
         print('background task loop iteration')
         db.update_local_metrics_staging_in_db()
         db.update_local_metrics_in_db()
         db.update_remote_metrics_staging_in_db()
         db.update_remote_metrics_in_db()
+        db.schedule_refresh()
         print('background task completed')
         time.sleep(5)
 

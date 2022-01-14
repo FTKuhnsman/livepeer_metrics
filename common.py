@@ -38,6 +38,9 @@ import requests
 import functools
 import hashlib
 import socket
+from threading import Thread
+from datetime import datetime as dt
+from dateutil import parser
 
 print = functools.partial(print, flush=True)
 #from datetime import datetime
@@ -124,9 +127,17 @@ class LpMetricsDb(Database):
         
         self.initialize_db()
         #self.init_active_orchs()
+        geo_thread = Thread(target=self.update_orch_geo_local_table)
+        #geo_thread.start()
+        print('thead started')
         #self.update_orch_geo_local_table()
         print('LPMetricsDB instance init function complete')
         
+        eval('self.test()')
+        self.schedule_refresh()
+        
+    def test(self):
+        print('testing')
         
     def initialize_db(self):
         tables = self.get_tables()
@@ -136,18 +147,42 @@ class LpMetricsDb(Database):
         elif self.execute_sql('SELECT * FROM active_orchs') == []:
             print('active_orchs table is empty... populating table')
             self.init_active_orchs()
+            
+        if not 'update_schedule' in tables:
+            self.execute_sql(self.static_statements['create_update_schedule_table'])
+        self.execute_sql("""INSERT OR IGNORE INTO update_schedule (dataset,function) VALUES ('active_orchs','self.init_active_orchs()')""".format(None))
+        self.execute_sql("""INSERT OR IGNORE INTO update_schedule (dataset,function) VALUES ('orch_geo_local','self.update_orch_geo_local_table()')""".format(None))
+        self.execute_sql("""INSERT OR IGNORE INTO update_schedule (dataset,function) VALUES ('orch_geo_global','self.update_geo_data_in_db()')""".format(None))
+
+        self.execute_sql("""UPDATE update_schedule SET interval = 86400 WHERE dataset = 'active_orchs'""")
+        self.execute_sql("""UPDATE update_schedule SET interval = 43200 WHERE dataset = 'orch_geo_local'""")
+        self.execute_sql("""UPDATE update_schedule SET interval = 30 WHERE dataset = 'orch_geo_global'""")
         
         self.init_metrics_tables()
 
-
+    def check_schedule(self):
+        df = self.sql_to_df('SELECT * FROM update_schedule')
+        schedule = df.to_dict(orient='records')
+        return schedule
+    
+    def schedule_refresh(self):
+        print('schedule refresh')
+        schedule = self.check_schedule()
+        
+        for f in schedule:
+            if f['last_update'] == None or (dt.now() - parser.parse(f['last_update'])).seconds > f['interval']:
+                eval(f['function'])
+        
+    
+    
     def init_active_orchs(self):
+        orchs = self.get_active_orchs_from_cli()
         self.execute_sql("DROP TABLE IF EXISTS active_orchs")
         self.execute_sql(self.static_statements['create_active_orchs_table'])
-        orchs = self.get_active_orchs_from_cli()
         
         for o in orchs:            
             sql_insert = """INSERT INTO active_orchs VALUES (null,'{address}','{delegated_stake}','{fee_share}','{reward_cut}','{service_uri}')""".format(
-                address=o['Address'],
+                address=o['Address'][2:],
                 delegated_stake=o['DelegatedStake'],
                 fee_share=o['FeeShare'],
                 reward_cut=o['RewardCut'],
@@ -155,6 +190,7 @@ class LpMetricsDb(Database):
             #insert records
             self.execute_sql(sql_insert)
         print('active_orchs table created')
+        self.execute_sql("""UPDATE update_schedule SET last_update = '{}' WHERE dataset = 'active_orchs'""".format(dt.now()))
     
     def init_metrics_tables(self):
         self.execute_sql('DROP TABLE IF EXISTS metrics')
@@ -233,7 +269,7 @@ class LpMetricsDb(Database):
             if o['lat'] == None: continue
             self.execute_sql(sql_insert)
         print('orch_geo_local table created')        
-        
+        self.execute_sql("""UPDATE update_schedule SET last_update = '{}' WHERE dataset = 'orch_geo_local'""".format(dt.now()))
             
     
     @property
@@ -244,6 +280,15 @@ class LpMetricsDb(Database):
         
     def get_static_statements(self):
         statements = {}
+        
+        __sql_create_update_schedule_table = """CREATE TABLE update_schedule (
+                                        dataset text PRIMARY KEY NOT NULL,
+                                        last_update datetime,
+                                        interval integer,
+                                        function text
+                                    );"""
+    
+        statements['create_update_schedule_table'] = __sql_create_update_schedule_table
         
         #active orchs table
         __sql_create_active_orch_table = """CREATE TABLE active_orchs (
@@ -336,7 +381,7 @@ class LpMetricsDb(Database):
         
         return df3
         
-    def getGeoMetrics(self, ip, port, eth, message=None, signature=None, return_r=False):
+    def getGeoMetrics(self, ip, port, message=None, signature=None, return_r=False):
 
         try:
             print('getGeoMetrics function has been called')
@@ -480,7 +525,7 @@ class LpMetricsDb(Database):
         orch_geo_list.append(df_local)
         
         for orch in self.configs['participating_orchestrators']:
-            geo = self.getGeoMetrics(orch['ip'],orch['port'],orch['eth'],message=self.configs['message'],signature=self.configs['signature'])
+            geo = self.getGeoMetrics(orch['ip'],orch['port'],message=self.configs['message'],signature=self.configs['signature'])
             
             if geo != None:
                 df_geo = pd.DataFrame(geo)
@@ -500,13 +545,17 @@ class LpMetricsDb(Database):
                         VALUES(?,?,?,?,?,?,?,?,?)"""
 
             self.execmany_sql(_sql,_data)
-            print('remote metrics staging update complete')
-            return df_full
+            print('global geo staging update complete')
             
+            self.execute_sql("""UPDATE update_schedule SET last_update = '{}' WHERE dataset = 'orch_geo_global'""".format(dt.now()))
+            return df_full
+        
         else:
-            print('failed writing data to remote metrics staging')
+            print('failed writing data to global geo table staging')
             return None 
-    
+        
+        
+        
     def update_local_metrics_staging_in_db(self):
         print('update local metrics staging table')
         self.execute_sql('DROP TABLE IF EXISTS local_metrics_staging')
