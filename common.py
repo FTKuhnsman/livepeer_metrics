@@ -276,6 +276,7 @@ class LpMetricsDb(Database):
     def orch_addresses(self):
         orchs = self.sql_to_df('SELECT * FROM active_orchs')
         orch_list = orchs['address'].tolist()
+        orch_list = ['0x' + a for a in orch_list]
         return orch_list
         
     def get_static_statements(self):
@@ -394,7 +395,7 @@ class LpMetricsDb(Database):
                 
             else:
                 print('getGeoMetrics: requesting metrics with authentication')
-                r = requests.post(url, json={'message':message,'signature':signature}, verify=False, timeout=2)
+                r = requests.post(url, json={'message':self.configs['message'],'signature':self.configs['signature']}, verify=False, timeout=2)
                 print('getGeoMetrics: response status code %s',r.status_code)
                 #print(r.content)
                 return r.json()
